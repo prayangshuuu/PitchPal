@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import google.generativeai as genai
+from google.api_core.exceptions import NotFound
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -27,6 +28,31 @@ def _clean_json_response(text: str) -> str:
     if text.endswith("```"):
         text = text[:-3]
     return text.strip()
+
+def _generate_content_with_fallback(prompt: str, generation_config=None):
+    """Helper to call Gemini API with fallback models."""
+    primary_model = os.getenv('GEMINI_MODEL', 'gemini-3.7-flash')
+    fallback_models_str = os.getenv('GEMINI_FALLBACK_MODELS', 'gemini-2.5-flash,gemini-3.5-flash')
+    models_to_try = [primary_model] + [m.strip() for m in fallback_models_str.split(',') if m.strip()]
+    
+    last_error = None
+    for model_name in models_to_try:
+        try:
+            model = genai.GenerativeModel(model_name)
+            if generation_config:
+                return model.generate_content(prompt, generation_config=generation_config)
+            else:
+                return model.generate_content(prompt)
+        except NotFound as e:
+            logger.warning(f"Model {model_name} not found, trying next fallback. Error: {e}")
+            last_error = e
+        except Exception as e:
+            logger.error(f"Unexpected error with model {model_name}: {e}")
+            raise e
+            
+    if last_error:
+        raise last_error
+    raise RuntimeError("No models available to try")
 
 def _get_fallback_questions(role: str, difficulty: str, count: int) -> List[Dict[str, Any]]:
     """Return hardcoded fallback questions."""
@@ -124,14 +150,13 @@ def generate_interview_questions(role: str, difficulty: str, count: int = 5) -> 
         return _get_fallback_questions(role, difficulty, count)
         
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash")
         prompt = (
             f"Generate exactly {count} realistic interview questions for a {role} role at "
             f"{difficulty} level. Return ONLY valid JSON as a list of dictionaries with "
             f"keys 'id', 'text', and 'category'. Do not include markdown formatting like ```json."
         )
         
-        response = model.generate_content(
+        response = _generate_content_with_fallback(
             prompt,
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,
@@ -163,7 +188,6 @@ def evaluate_answer(question_text: str, answer_text: str, mode: str = "interview
         return fallback_response
 
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash")
         prompt = (
             f"Evaluate this {mode} answer to the question: '{question_text}'.\n"
             f"Answer: '{answer_text}'\n"
@@ -173,7 +197,7 @@ def evaluate_answer(question_text: str, answer_text: str, mode: str = "interview
             "'improvements' (list of strings). Do not include markdown formatting."
         )
         
-        response = model.generate_content(
+        response = _generate_content_with_fallback(
             prompt,
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,
@@ -202,7 +226,6 @@ def generate_pitch_feedback(pitch_text: str, pitch_type: str = "elevator") -> Di
         return fallback_response
 
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash")
         prompt = (
             f"Evaluate this {pitch_type} pitch on clarity, persuasiveness, engagement, and pacing.\n"
             f"Pitch: '{pitch_text}'\n"
@@ -211,7 +234,7 @@ def generate_pitch_feedback(pitch_text: str, pitch_type: str = "elevator") -> Di
             "Do not include markdown formatting."
         )
         
-        response = model.generate_content(
+        response = _generate_content_with_fallback(
             prompt,
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,

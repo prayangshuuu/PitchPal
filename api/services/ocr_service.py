@@ -15,28 +15,43 @@ _EXTRACTION_PROMPT = (
 )
 
 
-def _get_model():
+from google.api_core.exceptions import NotFound
+
+def _get_api_key():
     api_key = os.getenv('GEMINI_API_KEY')
     if not api_key:
         logger.error("GEMINI_API_KEY environment variable not found; cannot run OCR extraction.")
         return None
     genai.configure(api_key=api_key)
-    return genai.GenerativeModel("gemini-2.0-flash")
-
+    return api_key
 
 def _extract_text_from_pil_image(image: Image.Image) -> str:
-    model = _get_model()
-    if model is None:
+    if not _get_api_key():
         return ""
-    try:
-        response = model.generate_content(
-            [_EXTRACTION_PROMPT, image],
-            generation_config=genai.types.GenerationConfig(temperature=0.0, max_output_tokens=800),
-        )
-        return (response.text or "").strip()
-    except Exception as e:
-        logger.error(f"Error extracting text from image via Gemini: {e}")
-        return ""
+        
+    primary_model = os.getenv('GEMINI_MODEL', 'gemini-3.7-flash')
+    fallback_models_str = os.getenv('GEMINI_FALLBACK_MODELS', 'gemini-2.5-flash,gemini-3.5-flash')
+    models_to_try = [primary_model] + [m.strip() for m in fallback_models_str.split(',') if m.strip()]
+    
+    last_error = None
+    for model_name in models_to_try:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(
+                [_EXTRACTION_PROMPT, image],
+                generation_config=genai.types.GenerationConfig(temperature=0.0, max_output_tokens=800),
+            )
+            return (response.text or "").strip()
+        except NotFound as e:
+            logger.warning(f"Model {model_name} not found, trying next fallback. Error: {e}")
+            last_error = e
+        except Exception as e:
+            logger.error(f"Error extracting text from image via Gemini model {model_name}: {e}")
+            return ""
+            
+    if last_error:
+        logger.error(f"Failed to extract text after trying all models. Last error: {last_error}")
+    return ""
 
 
 def extract_text_from_image(file_path: str) -> str:
