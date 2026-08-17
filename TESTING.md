@@ -11,12 +11,12 @@ match reality:
 | Admin (`api/admin.py`) | Implemented |
 | Gemini service (`api/services/gemini_service.py`) | Implemented: `generate_interview_questions`, `evaluate_answer`, `generate_pitch_feedback`, with fallback behavior when `GEMINI_API_KEY` is missing or the API call fails |
 | Cache service (`api/services/cache_service.py`) | Implemented: `cache_response`, `get_cached_response`, `clear_cache` |
-| REST API (serializers/ViewSets) | **Not implemented.** `djangorestframework` is installed but unused — no serializers, no ViewSets. |
-| URL routing | **Not implemented.** `pitchpal/urls.py` only registers `admin/`. There is no `api/urls.py`. |
-| Views (`api/views.py`) | **Empty** — placeholder file only. |
-| Authentication views | **Not implemented.** Templates reference `/auth/login/`, `/auth/signup/` but nothing serves those routes. |
-| Frontend templates (`api/templates/api/*.html`) | Present (login, signup, home, session start/practice/results, progress dashboard) but **unwired** — no view renders them, untracked in git. |
-| Demo data | **Not implemented.** No seed command or fixture. |
+| REST API (serializers/ViewSets) | **Implemented.** (`api/serializers.py`, `api/api_views.py`, `api/api_urls.py`) |
+| URL routing | **Implemented.** `pitchpal/urls.py` registers `/api/`, `/auth/`, and frontend routes. |
+| Views (`api/views.py`) | **Implemented.** Renders frontend templates and handles submissions. |
+| Authentication views | **Implemented.** Uses Django auth mapped in `api/views.py`. |
+| Frontend templates (`api/templates/api/*.html`) | **Implemented.** Views properly render templates with context. |
+| Demo data | **Implemented.** Use `python manage.py seed_demo_data`. |
 
 **Consequence:** this guide covers automated tests for models and the two service modules,
 since that's the only code that currently exists to test. Section 7 is a punch list for

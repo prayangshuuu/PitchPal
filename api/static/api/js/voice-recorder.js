@@ -199,7 +199,7 @@ class VoiceRecorder {
         method: 'POST',
         body: formData,
         headers: {
-          'X-CSRFToken': this.getCookie('csrftoken')
+          'X-CSRFToken': PracticeUI.getCookie('csrftoken')
         }
       });
 
@@ -207,11 +207,10 @@ class VoiceRecorder {
         throw new Error('Failed to submit answer');
       }
 
-      // Since the backend returns HTML (partials/feedback.html), we need to insert it
-      const html = await response.text();
+      const data = await response.json();
       const feedbackDiv = document.getElementById('feedback-container');
-      feedbackDiv.innerHTML = html;
-      
+      feedbackDiv.innerHTML = PracticeUI.renderFeedback(data.session_id, data);
+
       // Hide the practice container
       document.querySelector('.session-practice-container').style.display = 'none';
 
@@ -285,20 +284,6 @@ class VoiceRecorder {
     this.animationId = requestAnimationFrame(() => this.drawWaveform());
   }
 
-  getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
 }
 
 // Initialize on DOM load

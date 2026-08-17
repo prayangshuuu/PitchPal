@@ -47,4 +47,4 @@ def test_session_submit_answer(authenticated_client, session, question, monkeypa
 def test_unauthenticated_requests(api_client, session):
     url = reverse('api-session-list')
     response = api_client.get(url)
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.status_code == status.HTTP_403_FORBIDDEN

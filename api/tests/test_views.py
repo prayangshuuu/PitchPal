@@ -30,11 +30,15 @@ def test_logout_view(client, user):
     assert response.status_code == 302
     assert response.url == reverse('home')
 
+@pytest.fixture(autouse=True)
+def mock_static_storage(settings):
+    settings.STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 def test_home_view(client):
     url = reverse('home')
     response = client.get(url)
     assert response.status_code == 200
-    assert 'api/home.html' in [t.name for t in response.templates]
+    assert 'api/landing.html' in [t.name for t in response.templates]
 
 def test_session_practice_view(client, user, session, question):
     client.force_login(user)

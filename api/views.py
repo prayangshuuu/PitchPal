@@ -254,7 +254,7 @@ class SignupView(View):
                 email=email,
                 password=form.cleaned_data['password'],
             )
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('home')
         return render(request, 'api/signup.html', {'form': form})
 
