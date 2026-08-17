@@ -9,7 +9,15 @@ class VoiceRecorder {
     this.analyser = null;
     this.dataArray = null;
     this.animationId = null;
-    
+
+    // Live (in-browser) speech-to-text state
+    this.recognition = null;
+    this.recognitionActive = false;
+    this.speechSupported = false;
+    this.finalTranscript = '';
+    this.interimTranscript = '';
+    this.userEditedTranscript = false;
+
     this.init();
   }
 
@@ -42,6 +50,13 @@ class VoiceRecorder {
     if (this.playBtn) this.playBtn.addEventListener('click', () => this.playRecording());
     if (this.deleteBtn) this.deleteBtn.addEventListener('click', () => this.deleteRecording());
     if (this.submitBtn) this.submitBtn.addEventListener('click', () => this.submitVoiceAnswer());
+    // Once the user manually edits the transcript, stop overwriting it with
+    // live/server transcription updates.
+    if (this.transcribedTextEdit) {
+      this.transcribedTextEdit.addEventListener('input', () => {
+        this.userEditedTranscript = true;
+      });
+    }
   }
 
   async startRecording() {
@@ -72,6 +87,7 @@ class VoiceRecorder {
       this.recordingIndicator.style.display = 'inline-block';
       this.startTimer();
       this.drawWaveform();
+      this.startLiveTranscription();
 
     } catch (error) {
       alert('Microphone access denied. Please allow microphone access.');
@@ -82,11 +98,108 @@ class VoiceRecorder {
   stopRecording() {
     if (this.isRecording && this.mediaRecorder) {
       this.isRecording = false;
+      // Stop live recognition first so it has a moment to flush its last
+      // final result before we read this.finalTranscript below.
+      this.stopLiveTranscription();
       this.mediaRecorder.stop();
       this.mediaRecorder.onstop = () => {
         this.handleRecordingComplete();
       };
     }
+  }
+
+  // --- Live (in-browser) speech-to-text ---------------------------------
+  // Uses the Web Speech API so the user sees a transcript appear while they
+  // are still talking, instead of waiting for the recording to be uploaded
+  // and run through server-side transcription. Falls back cleanly (no-op)
+  // in browsers that don't support it (e.g. Firefox) — the existing
+  // server-side transcription in transcribeAudio() still runs regardless.
+  startLiveTranscription() {
+    const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
+    this.finalTranscript = '';
+    this.interimTranscript = '';
+    this.userEditedTranscript = false;
+    this.recognitionActive = false;
+    this.speechSupported = !!SpeechRecognitionImpl;
+
+    if (!this.speechSupported) return;
+
+    this.recognition = new SpeechRecognitionImpl();
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+    this.recognition.lang = (navigator.language || 'en-US');
+    this.recognition.maxAlternatives = 1;
+
+    this.recognition.onresult = (event) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          this.finalTranscript += (this.finalTranscript ? ' ' : '') + transcript.trim();
+        } else {
+          interim += transcript;
+        }
+      }
+      this.interimTranscript = interim;
+      this.updateLiveTranscript();
+    };
+
+    this.recognition.onerror = (event) => {
+      console.warn('Speech recognition error:', event.error);
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        // Permission denied specifically for speech recognition — stop
+        // trying; the recording itself is unaffected.
+        this.speechSupported = false;
+      }
+      // Other errors (e.g. 'no-speech', 'network', 'aborted') are recoverable:
+      // onend fires next and, while still recording, we restart below.
+    };
+
+    this.recognition.onend = () => {
+      this.recognitionActive = false;
+      if (this.isRecording && this.speechSupported) {
+        // Chrome/Edge stop the recognizer after a pause in speech; restart
+        // it immediately so live transcription keeps running for the whole
+        // recording, not just the first utterance.
+        setTimeout(() => this.startRecognitionInstance(), 250);
+      }
+    };
+
+    this.startRecognitionInstance();
+  }
+
+  startRecognitionInstance() {
+    if (!this.isRecording || !this.recognition || this.recognitionActive) return;
+    try {
+      this.recognition.start();
+      this.recognitionActive = true;
+    } catch (e) {
+      // start() throws if invoked while already running; safe to ignore.
+    }
+  }
+
+  stopLiveTranscription() {
+    if (this.recognition) {
+      try { this.recognition.stop(); } catch (e) { /* already stopped */ }
+    }
+  }
+
+  updateLiveTranscript() {
+    const combined = `${this.finalTranscript} ${this.interimTranscript}`.trim();
+    if (!combined) return;
+
+    if (this.transcriptionContainer.style.display === 'none') {
+      this.transcriptionContainer.style.display = 'block';
+      this.transcriptionEditContainer.style.display = 'block';
+      this.transcriptionLoading.style.display = 'none';
+    }
+
+    this.transcribedTextDisplay.value = combined;
+    if (!this.userEditedTranscript) {
+      this.transcribedTextEdit.value = combined;
+    }
+    this.transcriptionStatus.textContent = '🎙️ Listening… transcribing live';
+    this.confidenceDisplay.textContent = '~90';
   }
 
   handleRecordingComplete() {
@@ -96,24 +209,38 @@ class VoiceRecorder {
     this.recordingIndicator.style.display = 'none';
     this.stopTimer();
 
-    // Transcribe audio
-    this.transcribeAudio();
+    const liveText = this.finalTranscript.trim();
+    if (liveText) {
+      this.transcriptionLoading.style.display = 'none';
+      this.transcriptionContainer.style.display = 'block';
+      this.transcriptionEditContainer.style.display = 'block';
+      this.transcribedTextDisplay.value = liveText;
+      if (!this.userEditedTranscript) this.transcribedTextEdit.value = liveText;
+      this.transcriptionStatus.textContent = 'Refining transcript…';
+    }
+
+    // Always run server-side (Gemini) transcription too: it's more accurate
+    // for accents/background noise and is the only source of text in
+    // browsers without live speech recognition support.
+    this.transcribeAudio(!!liveText);
   }
 
-  async transcribeAudio() {
+  async transcribeAudio(hasLiveDraft = false) {
     const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
-    
-    this.transcriptionLoading.style.display = 'flex';
-    this.transcriptionContainer.style.display = 'none';
-    this.transcriptionEditContainer.style.display = 'none';
-    this.transcriptionStatus.textContent = 'Converting voice to text...';
+
+    if (!hasLiveDraft) {
+      this.transcriptionLoading.style.display = 'flex';
+      this.transcriptionContainer.style.display = 'none';
+      this.transcriptionEditContainer.style.display = 'none';
+      this.transcriptionStatus.textContent = 'Converting voice to text...';
+    }
 
     try {
       const formData = new FormData();
       formData.append('audio_file', audioBlob, 'recording.webm');
 
       // Get session ID from URL or form
-      const sessionId = document.querySelector('[data-session-id]')?.dataset.sessionId || 
+      const sessionId = document.querySelector('[data-session-id]')?.dataset.sessionId ||
                         window.location.pathname.split('/')[2];
 
       const response = await fetch(`/sessions/${sessionId}/transcribe-voice/`, {
@@ -130,20 +257,30 @@ class VoiceRecorder {
       }
 
       const data = await response.json();
-      
+
       this.transcriptionLoading.style.display = 'none';
       this.transcriptionContainer.style.display = 'block';
       this.transcriptionEditContainer.style.display = 'block';
-      
+
       this.transcribedTextDisplay.value = data.transcribed_text;
-      this.transcribedTextEdit.value = data.transcribed_text;
+      if (!this.userEditedTranscript) {
+        this.transcribedTextEdit.value = data.transcribed_text;
+      }
       this.confidenceDisplay.textContent = Math.round(data.confidence * 100);
       this.transcriptionStatus.textContent = '✓ Transcription complete';
 
     } catch (error) {
       console.error('Transcription error:', error);
       this.transcriptionLoading.style.display = 'none';
-      alert(`Transcription failed: ${error.message}`);
+      if (hasLiveDraft) {
+        // We already have a usable live transcript — don't block the user
+        // with an alert, just let them know the server refinement failed.
+        this.transcriptionContainer.style.display = 'block';
+        this.transcriptionEditContainer.style.display = 'block';
+        this.transcriptionStatus.textContent = '⚠ Using live transcript (server refinement unavailable)';
+      } else {
+        alert(`Transcription failed: ${error.message}`);
+      }
     }
   }
 
@@ -158,6 +295,10 @@ class VoiceRecorder {
   deleteRecording() {
     this.audioChunks = [];
     this.isRecording = false;
+    this.stopLiveTranscription();
+    this.finalTranscript = '';
+    this.interimTranscript = '';
+    this.userEditedTranscript = false;
     this.transcriptionContainer.style.display = 'none';
     this.transcriptionEditContainer.style.display = 'none';
     this.playBtn.style.display = 'none';
