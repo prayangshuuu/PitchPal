@@ -3,7 +3,7 @@ import logging
 import google.generativeai as genai
 from google.api_core.exceptions import NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError, PermissionDenied, InvalidArgument
 
-from .gemini_service import _get_api_keys
+from .gemini_service import _get_api_keys, _get_models_to_try
 
 logger = logging.getLogger(__name__)
 
@@ -11,12 +11,6 @@ TRANSCRIBE_PROMPT = (
     "Transcribe this audio to text as accurately as possible, including any technical "
     "terms, names, and numbers. Return ONLY the transcribed text, nothing else."
 )
-
-
-def _models_to_try():
-    primary_model = os.getenv('GEMINI_MODEL', 'gemini-3.7-flash')
-    fallback_models_str = os.getenv('GEMINI_FALLBACK_MODELS', 'gemini-2.5-flash,gemini-3.5-flash')
-    return [primary_model] + [m.strip() for m in fallback_models_str.split(',') if m.strip()]
 
 
 def transcribe_audio_with_confidence(audio_file_path):
@@ -27,7 +21,7 @@ def transcribe_audio_with_confidence(audio_file_path):
         logger.error("GEMINI_API_KEY environment variable not found.")
         return {"text": "", "confidence": 0, "error": "Missing API key"}
 
-    models_to_try = _models_to_try()
+    models_to_try = _get_models_to_try()
     last_error = None
 
     for key in keys:

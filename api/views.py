@@ -27,10 +27,10 @@ class HomeView(View):
             return render(request, 'api/landing.html', {'is_landing_page': True})
 
         recent_sessions = (
-            Session.objects.filter(user=request.user, status='completed').order_by('-created_at')[:5]
+            Session.objects.filter(user=request.user, status=Session.Status.COMPLETED).order_by('-created_at')[:5]
         )
         completed = Session.objects.filter(
-            user=request.user, status='completed', overall_score__isnull=False
+            user=request.user, status=Session.Status.COMPLETED, overall_score__isnull=False
         )
         avg = completed.aggregate(avg=Avg('overall_score'))['avg']
         top_role_row = completed.values('role').annotate(count=Count('id')).order_by('-count').first()
@@ -206,7 +206,7 @@ class SessionResultsView(LoginRequiredMixin, View):
 class ProgressDashboardView(LoginRequiredMixin, View):
     def get(self, request):
         completed = Session.objects.filter(
-            user=request.user, status='completed', overall_score__isnull=False
+            user=request.user, status=Session.Status.COMPLETED, overall_score__isnull=False
         )
         aggregates = completed.aggregate(avg=Avg('overall_score'), best=Max('overall_score'))
         role_stats = list(

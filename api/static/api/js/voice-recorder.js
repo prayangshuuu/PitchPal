@@ -144,6 +144,20 @@ class VoiceRecorder {
       this.updateLiveTranscript();
     };
 
+    this.recognition.onstart = () => {
+      // Confirms the mic is actually being listened to — fires before any
+      // words are recognized, so the user gets feedback immediately instead
+      // of a blank screen until their first words resolve.
+      if (!this.finalTranscript && !this.interimTranscript) {
+        if (this.transcriptionContainer.style.display === 'none') {
+          this.transcriptionContainer.style.display = 'block';
+          this.transcriptionEditContainer.style.display = 'block';
+          this.transcriptionLoading.style.display = 'none';
+        }
+        this.transcriptionStatus.textContent = '🎙️ Listening…';
+      }
+    };
+
     this.recognition.onerror = (event) => {
       console.warn('Speech recognition error:', event.error);
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
@@ -429,23 +443,30 @@ class VoiceRecorder {
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
-  new VoiceRecorder();
-  
+  const voiceRecorder = new VoiceRecorder();
+
   // Toggle between text and voice mode
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       // Prevent default form submission or other actions if this is inside a form
       e.preventDefault();
-      
+
       document.querySelectorAll('.mode-btn').forEach(b => {
           b.classList.remove('active', 'bg-blue-100', 'text-blue-700');
           b.classList.add('text-gray-600', 'hover:bg-gray-100');
       });
-      
+
       e.target.classList.remove('text-gray-600', 'hover:bg-gray-100');
       e.target.classList.add('active', 'bg-blue-100', 'text-blue-700');
-      
+
       const mode = e.target.dataset.mode;
+
+      // Switching away from voice mode mid-recording would otherwise leave
+      // the mic and live speech recognition running invisibly in the background.
+      if (mode !== 'voice' && voiceRecorder.isRecording) {
+        voiceRecorder.stopRecording();
+      }
+
       document.getElementById('text-mode').style.display = mode === 'text' ? 'block' : 'none';
       document.getElementById('voice-mode').style.display = mode === 'voice' ? 'block' : 'none';
     });

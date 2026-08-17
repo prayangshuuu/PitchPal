@@ -14,46 +14,44 @@ class User(AbstractUser):
     class Meta:
         ordering = ['-created_at']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.email
 
 class Session(models.Model):
-    MODE_CHOICES = (
-        ('interview', 'Interview'),
-        ('pitch', 'Pitch'),
-        ('presentation', 'Presentation'),
-    )
-    ROLE_CHOICES = (
-        ('sde', 'Software Development Engineer'),
-        ('pm', 'Product Manager'),
-        ('designer', 'Designer'),
-        ('qa', 'Quality Assurance'),
-        ('other', 'Other'),
-    )
-    DIFFICULTY_CHOICES = (
-        ('junior', 'Junior'),
-        ('mid', 'Mid-Level'),
-        ('senior', 'Senior'),
-    )
-    STATUS_CHOICES = (
-        ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
-    )
+    class Mode(models.TextChoices):
+        INTERVIEW = 'interview', 'Interview'
+        PITCH = 'pitch', 'Pitch'
+        PRESENTATION = 'presentation', 'Presentation'
 
-    SOURCE_CHOICES = (
-        ('ai_generated', 'AI Generated'),
-        ('user_uploaded', 'User Uploaded'),
-    )
+    class Role(models.TextChoices):
+        SDE = 'sde', 'Software Development Engineer'
+        PM = 'pm', 'Product Manager'
+        DESIGNER = 'designer', 'Designer'
+        QA = 'qa', 'Quality Assurance'
+        OTHER = 'other', 'Other'
+
+    class Difficulty(models.TextChoices):
+        JUNIOR = 'junior', 'Junior'
+        MID = 'mid', 'Mid-Level'
+        SENIOR = 'senior', 'Senior'
+
+    class Status(models.TextChoices):
+        IN_PROGRESS = 'in_progress', 'In Progress'
+        COMPLETED = 'completed', 'Completed'
+
+    class Source(models.TextChoices):
+        AI_GENERATED = 'ai_generated', 'AI Generated'
+        USER_UPLOADED = 'user_uploaded', 'User Uploaded'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sessions')
-    mode = models.CharField(max_length=20, choices=MODE_CHOICES)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES)
+    mode = models.CharField(max_length=20, choices=Mode.choices)
+    role = models.CharField(max_length=20, choices=Role.choices)
+    difficulty = models.CharField(max_length=10, choices=Difficulty.choices)
     overall_score = models.IntegerField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.IN_PROGRESS)
     user_uploaded_questions = models.TextField(null=True, blank=True)
-    questions_source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='ai_generated')
+    questions_source = models.CharField(max_length=20, choices=Source.choices, default=Source.AI_GENERATED)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -63,31 +61,30 @@ class Session(models.Model):
             models.Index(fields=['user', '-created_at']),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.user.email} - {self.get_mode_display()} ({self.created_at.date() if self.created_at else ''})"
 
     @property
-    def average_score(self):
+    def average_score(self) -> int:
         """Template-facing alias for the stored overall_score."""
         return self.overall_score
 
     @property
-    def score(self):
+    def score(self) -> int:
         """Template-facing alias for the stored overall_score."""
         return self.overall_score
 
 class Question(models.Model):
-    CATEGORY_CHOICES = (
-        ('behavioral', 'Behavioral'),
-        ('technical', 'Technical'),
-        ('problem_solving', 'Problem Solving'),
-    )
+    class Category(models.TextChoices):
+        BEHAVIORAL = 'behavioral', 'Behavioral'
+        TECHNICAL = 'technical', 'Technical'
+        PROBLEM_SOLVING = 'problem_solving', 'Problem Solving'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='questions')
     question_number = models.IntegerField()
     text = models.TextField()
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    category = models.CharField(max_length=20, choices=Category.choices)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -96,18 +93,17 @@ class Question(models.Model):
             models.Index(fields=['session']),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Q{self.question_number}: {self.text[:50]}"
 
 class Answer(models.Model):
-    ANSWER_TYPE_CHOICES = [
-        ('text', 'Text'),
-        ('voice', 'Voice Recording'),
-    ]
+    class AnswerType(models.TextChoices):
+        TEXT = 'text', 'Text'
+        VOICE = 'voice', 'Voice Recording'
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
-    answer_type = models.CharField(max_length=10, choices=ANSWER_TYPE_CHOICES, default='text')
+    answer_type = models.CharField(max_length=10, choices=AnswerType.choices, default=AnswerType.TEXT)
     user_text = models.TextField()  # Final text (typed or transcribed)
     audio_file = models.FileField(upload_to='voice_answers/', null=True, blank=True)
     transcribed_text = models.TextField(null=True, blank=True)
@@ -121,7 +117,7 @@ class Answer(models.Model):
             models.Index(fields=['question']),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Answer to Q{self.question.question_number}"
 
 class Evaluation(models.Model):
@@ -143,27 +139,14 @@ class Evaluation(models.Model):
             models.Index(fields=['answer']),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Evaluation: {self.score}/100"
 
 class ProgressMetric(models.Model):
-    ROLE_CHOICES = (
-        ('sde', 'Software Development Engineer'),
-        ('pm', 'Product Manager'),
-        ('designer', 'Designer'),
-        ('qa', 'Quality Assurance'),
-        ('other', 'Other'),
-    )
-    MODE_CHOICES = (
-        ('interview', 'Interview'),
-        ('pitch', 'Pitch'),
-        ('presentation', 'Presentation'),
-    )
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='progress_metrics')
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    mode = models.CharField(max_length=20, choices=MODE_CHOICES)
+    role = models.CharField(max_length=20, choices=Session.Role.choices)
+    mode = models.CharField(max_length=20, choices=Session.Mode.choices)
     sessions_completed = models.IntegerField(default=0)
     average_score = models.FloatField(null=True, blank=True)
     best_score = models.IntegerField(null=True, blank=True)
@@ -178,5 +161,5 @@ class ProgressMetric(models.Model):
             models.Index(fields=['user', 'role']),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.user.email} - {self.get_role_display()} ({self.get_mode_display()})"

@@ -30,11 +30,15 @@ def _clean_json_response(text: str) -> str:
         text = text[:-3]
     return text.strip()
 
-def _generate_content_with_fallback(prompt: str, generation_config=None):
-    """Helper to call Gemini API with fallback models."""
+def _get_models_to_try():
+    """Primary model followed by configured fallbacks, shared by every Gemini call site."""
     primary_model = os.getenv('GEMINI_MODEL', 'gemini-3.7-flash')
     fallback_models_str = os.getenv('GEMINI_FALLBACK_MODELS', 'gemini-2.5-flash,gemini-3.5-flash')
-    models_to_try = [primary_model] + [m.strip() for m in fallback_models_str.split(',') if m.strip()]
+    return [primary_model] + [m.strip() for m in fallback_models_str.split(',') if m.strip()]
+
+def _generate_content_with_fallback(prompt: str, generation_config=None):
+    """Helper to call Gemini API with fallback models."""
+    models_to_try = _get_models_to_try()
     keys = _get_api_keys()
     if not keys:
         models_to_try = []

@@ -1,23 +1,28 @@
 import json
+from typing import Optional, Tuple, List
 
 from django.db.models import Avg, Max, Min
 from django.utils import timezone
 
-from ..models import Answer, Evaluation, ProgressMetric, Question, Session
+from ..models import Answer, Evaluation, ProgressMetric, Question, Session, User
 from . import gemini_service
 
 QUESTIONS_PER_SESSION = 5
 
 
-def generate_questions_for_session(session, uploaded_questions=None, count=QUESTIONS_PER_SESSION):
+def generate_questions_for_session(
+    session: Session, 
+    uploaded_questions: Optional[List[str]] = None, 
+    count: int = QUESTIONS_PER_SESSION
+) -> List[Question]:
     """Populate a freshly created session with questions.
 
     Uses any user-supplied question text first (from an OCR'd upload), then tops up
     the remainder with AI-generated questions so every session has exactly `count`
     questions regardless of how many were successfully extracted from an upload.
     """
-    uploaded_questions = [q.strip() for q in (uploaded_questions or []) if q and q.strip()]
-    entries = [(text, "behavioral") for text in uploaded_questions[:count]]
+    uploaded_questions_list = [q.strip() for q in (uploaded_questions or []) if q and q.strip()]
+    entries: List[Tuple[str, str]] = [(text, "behavioral") for text in uploaded_questions_list[:count]]
 
     remaining = count - len(entries)
     if remaining > 0:
@@ -32,7 +37,16 @@ def generate_questions_for_session(session, uploaded_questions=None, count=QUEST
     ])
 
 
-def submit_answer(session, question, answer_text, answer_type='text', audio_file=None, transcribed_text=None, transcription_confidence=0, is_transcribed=False):
+def submit_answer(
+    session: Session, 
+    question: Question, 
+    answer_text: str, 
+    answer_type: str = 'text', 
+    audio_file: Optional[str] = None, 
+    transcribed_text: Optional[str] = None, 
+    transcription_confidence: float = 0, 
+    is_transcribed: bool = False
+) -> Tuple[Answer, Evaluation, bool]:
     """Record an answer, evaluate it, and complete the session if this was the last question."""
     answer = Answer.objects.create(
         question=question, 
@@ -65,18 +79,18 @@ def submit_answer(session, question, answer_text, answer_type='text', audio_file
     return answer, evaluation, is_last_question
 
 
-def _complete_session(session):
+def _complete_session(session: Session) -> None:
     evaluations = Evaluation.objects.filter(answer__question__session=session)
     avg = evaluations.aggregate(avg=Avg("score"))["avg"]
     session.overall_score = round(avg) if avg is not None else None
-    session.status = "completed"
+    session.status = Session.Status.COMPLETED
     session.save(update_fields=["overall_score", "status", "updated_at"])
     update_progress_metric(session.user, session.role, session.mode)
 
 
-def update_progress_metric(user, role, mode):
+def update_progress_metric(user: User, role: str, mode: str) -> ProgressMetric:
     completed = Session.objects.filter(
-        user=user, role=role, mode=mode, status="completed", overall_score__isnull=False
+        user=user, role=role, mode=mode, status=Session.Status.COMPLETED, overall_score__isnull=False
     )
     aggregates = completed.aggregate(avg=Avg("overall_score"), best=Max("overall_score"), worst=Min("overall_score"))
     metric, _ = ProgressMetric.objects.get_or_create(user=user, role=role, mode=mode)
