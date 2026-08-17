@@ -54,22 +54,22 @@ window.PracticeUI = (function () {
                     <p class="text-sm text-gray-500 mt-1">Evaluated on clarity, depth, and communication.</p>
                 </div>
                 <div class="flex flex-col items-center score-display" data-score="${feedback.overall_score}">
-                    <div class="text-4xl font-extrabold score-text">${feedback.overall_score}</div>
+                    <div class="text-4xl font-extrabold score-text">${feedback.overall_score}<span class="text-base font-medium">/100</span></div>
                     <div class="text-xs font-semibold uppercase tracking-wide mt-1 text-gray-500">Overall Score</div>
                 </div>
             </div>
 
             <div class="grid grid-cols-3 gap-4 mb-8">
                 <div class="bg-gray-50 p-4 rounded-lg text-center">
-                    <div class="text-2xl font-bold score-display-sm" data-score="${feedback.clarity_score}">${feedback.clarity_score}</div>
+                    <div class="text-2xl font-bold score-display-sm" data-score="${feedback.clarity_score}">${feedback.clarity_score}<span class="text-xs font-medium">/100</span></div>
                     <div class="text-xs text-gray-500 font-medium uppercase mt-1">Clarity</div>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg text-center">
-                    <div class="text-2xl font-bold score-display-sm" data-score="${feedback.depth_score}">${feedback.depth_score}</div>
+                    <div class="text-2xl font-bold score-display-sm" data-score="${feedback.depth_score}">${feedback.depth_score}<span class="text-xs font-medium">/100</span></div>
                     <div class="text-xs text-gray-500 font-medium uppercase mt-1">Depth</div>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg text-center">
-                    <div class="text-2xl font-bold score-display-sm" data-score="${feedback.communication_score}">${feedback.communication_score}</div>
+                    <div class="text-2xl font-bold score-display-sm" data-score="${feedback.communication_score}">${feedback.communication_score}<span class="text-xs font-medium">/100</span></div>
                     <div class="text-xs text-gray-500 font-medium uppercase mt-1">Comm</div>
                 </div>
             </div>

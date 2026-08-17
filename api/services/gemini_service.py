@@ -187,7 +187,8 @@ def evaluate_answer(question_text: str, answer_text: str, mode: str = "interview
         "communication_score": 50,
         "feedback": "Unable to generate detailed feedback at this time. Keep practicing!",
         "strengths": [],
-        "improvements": []
+        "improvements": [],
+        "raw_response": None
     }
     
     if not os.getenv('GEMINI_API_KEY'):
@@ -214,7 +215,9 @@ def evaluate_answer(question_text: str, answer_text: str, mode: str = "interview
         )
 
         cleaned_response = _clean_json_response(response.text)
-        return json.loads(cleaned_response)
+        parsed = json.loads(cleaned_response)
+        parsed["raw_response"] = cleaned_response
+        return parsed
 
     except Exception as e:
         finish_reason = None

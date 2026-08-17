@@ -136,6 +136,7 @@ class TestEvaluateAnswer:
             "feedback",
             "strengths",
             "improvements",
+            "raw_response",
         }
         assert 0 <= result["score"] <= 100
         assert 0 <= result["clarity_score"] <= 100
@@ -144,6 +145,7 @@ class TestEvaluateAnswer:
         assert isinstance(result["feedback"], str)
         assert isinstance(result["strengths"], list)
         assert isinstance(result["improvements"], list)
+        assert json.loads(result["raw_response"]) == payload
 
     def test_falls_back_when_api_key_missing(self, monkeypatch):
         monkeypatch.delenv("GEMINI_API_KEY", raising=False)
@@ -178,7 +180,9 @@ class TestEvaluateAnswer:
             "feedback",
             "strengths",
             "improvements",
+            "raw_response",
         }
+        assert result["raw_response"] is None
 
 
 class TestGeneratePitchFeedback:

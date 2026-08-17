@@ -134,6 +134,7 @@ class Evaluation(models.Model):
     feedback = models.TextField()
     strengths = models.TextField()
     improvements = models.TextField()
+    raw_response = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

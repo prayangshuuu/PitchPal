@@ -54,6 +54,7 @@ def submit_answer(session, question, answer_text, answer_type='text', audio_file
         feedback=result.get("feedback", ""),
         strengths=json.dumps(result.get("strengths", [])),
         improvements=json.dumps(result.get("improvements", [])),
+        raw_response=result.get("raw_response"),
     )
 
     total_questions = session.questions.count()

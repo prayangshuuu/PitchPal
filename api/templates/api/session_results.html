@@ -17,7 +17,7 @@
             
             <div class="flex-shrink-0 bg-gray-50 rounded-full p-8 border-4 score-border score-display" data-score="{{ session.average_score }}">
                 <div class="flex flex-col items-center justify-center h-32 w-32 rounded-full bg-white shadow-inner">
-                    <span class="text-5xl font-black score-text">{{ session.average_score }}</span>
+                    <span class="text-5xl font-black score-text">{{ session.average_score }}<span class="text-lg font-medium">/100</span></span>
                     <span class="text-xs font-bold text-gray-400 mt-1 uppercase">Score</span>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Q{{ forloop.counter }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2.5 py-1 text-xs font-semibold rounded-full score-badge" data-score="{{ answer.overall_score }}">
-                                {{ answer.overall_score }}
+                                {{ answer.overall_score }}/100
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

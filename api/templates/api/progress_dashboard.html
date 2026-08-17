@@ -20,11 +20,11 @@
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
             <dt class="text-sm font-medium text-gray-500 truncate">Average Score</dt>
-            <dd class="mt-2 text-3xl font-semibold text-gray-900 score-display-sm" data-score="{{ avg_score }}">{{ avg_score|floatformat:1|default:"--" }}</dd>
+            <dd class="mt-2 text-3xl font-semibold text-gray-900 score-display-sm" data-score="{{ avg_score }}">{{ avg_score|floatformat:1|default:"--" }}{% if avg_score %}<span class="text-sm font-medium">/100</span>{% endif %}</dd>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
             <dt class="text-sm font-medium text-gray-500 truncate">Best Score</dt>
-            <dd class="mt-2 text-3xl font-semibold text-gray-900 score-display-sm" data-score="{{ best_score }}">{{ best_score|default:"--" }}</dd>
+            <dd class="mt-2 text-3xl font-semibold text-gray-900 score-display-sm" data-score="{{ best_score }}">{{ best_score|default:"--" }}{% if best_score %}<span class="text-sm font-medium">/100</span>{% endif %}</dd>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col">
             <dt class="text-sm font-medium text-gray-500 truncate">Favorite Role</dt>
@@ -46,7 +46,7 @@
                         <span class="text-xs text-gray-500">{{ stat.count }} sessions</span>
                     </div>
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold score-badge" data-score="{{ stat.avg_score }}">
-                        {{ stat.avg_score|floatformat:1 }} avg
+                        {{ stat.avg_score|floatformat:1 }}/100 avg
                     </span>
                 </li>
                 {% empty %}
@@ -83,7 +83,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full score-badge" data-score="{{ session.average_score|default:0 }}">
-                                    {{ session.average_score|default:"Inc." }}
+                                    {% if session.average_score %}{{ session.average_score }}/100{% else %}Inc.{% endif %}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
