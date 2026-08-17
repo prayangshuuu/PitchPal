@@ -1,0 +1,54 @@
+{% extends 'api/base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto w-full">
+    <!-- Progress Bar -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Question {{ question_number }} of 5</span>
+            <span class="text-sm text-gray-500">{{ session.get_mode_display|title }} &bull; {{ session.get_role_display }}</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out" style="width: {{ progress_percentage }}%"></div>
+        </div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight mb-6">{{ current_question.text }}</h2>
+        
+        <form id="practice-form"
+              hx-post="/sessions/{{ session.id }}/submit/" 
+              hx-target="#feedback-container" 
+              hx-swap="innerHTML"
+              hx-indicator="#loading-spinner">
+            {% csrf_token %}
+            <input type="hidden" name="question_id" value="{{ current_question.id }}">
+            
+            <div class="mb-4">
+                <label for="answer_text" class="sr-only">Your Answer</label>
+                <textarea id="answer_text" name="answer_text" rows="6" 
+                          class="block w-full rounded-lg border-gray-300 border p-4 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base"
+                          placeholder="Type your answer here as if you were speaking it out loud..." required></textarea>
+            </div>
+            
+            <div class="flex justify-end items-center">
+                <button type="submit" id="submit-answer-btn" 
+                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <span>Submit Answer</span>
+                    <!-- Loading Spinner -->
+                    <svg id="loading-spinner" class="htmx-indicator ml-2 -mr-1 h-5 w-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Feedback Container (populated by HTMX) -->
+    <div id="feedback-container" class="transition-all duration-300 mt-6">
+        <!-- Partials will load here -->
+    </div>
+</div>
+{% endblock %}

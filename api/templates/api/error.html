@@ -1,0 +1,23 @@
+{% extends 'api/base.html' %}
+
+{% block content %}
+<div class="min-h-[60vh] flex flex-col justify-center items-center px-4 py-16 text-center">
+    <div class="text-red-500 mb-6">
+        <svg class="h-24 w-24 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+    </div>
+    
+    <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
+        Error {{ error_code|default:"500" }}
+    </h1>
+    
+    <p class="text-xl text-gray-600 max-w-lg mx-auto mb-8">
+        {{ error_message|default:"Something went wrong on our end. Please try again later." }}
+    </p>
+    
+    <a href="/" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+        &larr; Return to Home
+    </a>
+</div>
+{% endblock %}

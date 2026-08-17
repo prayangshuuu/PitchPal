@@ -20,8 +20,9 @@ dependencies = [
     "dj-database-url==2.1.0",
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest==7.4.3",
     "pytest-django==4.7.0",
+    "faker==20.0.0",
 ]

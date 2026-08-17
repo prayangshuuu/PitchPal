@@ -1,0 +1,28 @@
+/* Minimal custom overrides for Tailwind */
+.htmx-indicator {
+    display: none;
+}
+.htmx-request .htmx-indicator {
+    display: inline-block;
+}
+.htmx-request.htmx-indicator {
+    display: inline-block;
+}
+button.htmx-request {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Animations */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.slide-down {
+    animation: slideDown 0.4s ease-out forwards;
+}
+
+/* Score border colors based on value handled via JS, fallback generic styles */
+.score-border {
+    border-color: #e5e7eb;
+}

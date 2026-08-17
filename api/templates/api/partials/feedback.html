@@ -1,0 +1,88 @@
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 slide-down">
+    <div class="p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 pb-6 mb-6 gap-4">
+            <div>
+                <h3 class="text-xl font-bold text-gray-900">AI Feedback</h3>
+                <p class="text-sm text-gray-500 mt-1">Evaluated on clarity, depth, and communication.</p>
+            </div>
+            
+            <div class="flex flex-col items-center score-display" data-score="{{ feedback.overall_score }}">
+                <div class="text-4xl font-extrabold score-text">{{ feedback.overall_score }}</div>
+                <div class="text-xs font-semibold uppercase tracking-wide mt-1 text-gray-500">Overall Score</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold score-display-sm" data-score="{{ feedback.clarity_score }}">{{ feedback.clarity_score }}</div>
+                <div class="text-xs text-gray-500 font-medium uppercase mt-1">Clarity</div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold score-display-sm" data-score="{{ feedback.depth_score }}">{{ feedback.depth_score }}</div>
+                <div class="text-xs text-gray-500 font-medium uppercase mt-1">Depth</div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg text-center">
+                <div class="text-2xl font-bold score-display-sm" data-score="{{ feedback.communication_score }}">{{ feedback.communication_score }}</div>
+                <div class="text-xs text-gray-500 font-medium uppercase mt-1">Comm</div>
+            </div>
+        </div>
+
+        <div class="prose prose-sm max-w-none text-gray-700 mb-8">
+            <p>{{ feedback.text_feedback }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+                <h4 class="flex items-center text-sm font-bold text-gray-900 mb-3">
+                    <svg class="h-5 w-5 text-green-500 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Strengths
+                </h4>
+                <ul class="space-y-2">
+                    {% for strength in feedback.strengths %}
+                        <li class="flex items-start">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {{ strength }}
+                            </span>
+                        </li>
+                    {% empty %}
+                        <li class="text-sm text-gray-500 italic">None identified</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="flex items-center text-sm font-bold text-gray-900 mb-3">
+                    <svg class="h-5 w-5 text-amber-500 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    To Improve
+                </h4>
+                <ul class="space-y-2">
+                    {% for improvement in feedback.improvements %}
+                        <li class="flex items-start">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                {{ improvement }}
+                            </span>
+                        </li>
+                    {% empty %}
+                        <li class="text-sm text-gray-500 italic">None identified</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-gray-50 px-6 py-4 sm:px-8 border-t border-gray-200 flex justify-end">
+        {% if is_last_question %}
+            <a href="/sessions/{{ session.id }}/results/" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                Finish & View Results &rarr;
+            </a>
+        {% else %}
+            <a href="/sessions/{{ session.id }}/practice/?q={{ next_question }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                Next Question &rarr;
+            </a>
+        {% endif %}
+    </div>
+</div>

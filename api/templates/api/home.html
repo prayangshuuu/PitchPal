@@ -1,0 +1,93 @@
+{% extends 'api/base.html' %}
+
+{% block content %}
+<div class="flex flex-col items-center text-center py-12 sm:py-20">
+    <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+        Practice every pitch <br class="hidden sm:block" />
+        <span class="text-blue-600">before the real one.</span>
+    </h1>
+    <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mb-10">
+        AI-powered feedback on your clarity, depth, and communication. Master interviews, pitches, and presentations.
+    </p>
+
+    {% if user.is_authenticated %}
+        <div class="w-full max-w-4xl bg-white shadow-md rounded-xl p-6 md:p-8 text-left border border-gray-100">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-gray-800">Welcome back!</h2>
+                <a href="/sessions/start/" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 shadow-sm transition-all transform hover:-translate-y-0.5 w-full sm:w-auto text-center">
+                    New Practice Session
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                    <p class="text-sm text-blue-600 font-semibold mb-1">Sessions Completed</p>
+                    <p class="text-3xl font-bold text-blue-900">{{ recent_sessions|length|default:"0" }}</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-5 border border-green-100">
+                    <p class="text-sm text-green-600 font-semibold mb-1">Average Score</p>
+                    <p class="text-3xl font-bold text-green-900">{{ avg_score|default:"--" }}</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-5 border border-purple-100">
+                    <p class="text-sm text-purple-600 font-semibold mb-1">Top Role</p>
+                    <p class="text-xl font-bold text-purple-900 mt-2 capitalize">{{ top_role|default:"None yet" }}</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-700">Recent Sessions</h3>
+                <a href="/dashboard/" class="text-blue-600 hover:text-blue-800 text-sm font-medium">View all &rarr;</a>
+            </div>
+            
+            {% if recent_sessions %}
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for session in recent_sessions|slice:":3" %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ session.created_at|date:"M d, Y" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="capitalize text-sm font-medium text-gray-900">{{ session.mode }}</span>
+                                    <span class="text-gray-400 text-sm ml-1">({{ session.role }})</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2.5 py-1 text-xs font-semibold rounded-full 
+                                        {% if session.score >= 75 %}bg-green-100 text-green-800
+                                        {% elif session.score >= 50 %}bg-amber-100 text-amber-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ session.score }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-10 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                    <p class="text-gray-500 mb-3">You haven't completed any sessions yet.</p>
+                    <a href="/sessions/start/" class="text-blue-600 font-medium hover:underline">Start your first practice &rarr;</a>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="flex flex-col sm:flex-row gap-4 w-full max-w-2xl justify-center">
+            <a href="/auth/signup/" class="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 shadow-lg transition-all transform hover:-translate-y-1 text-center w-full sm:w-auto">
+                Start Interview
+            </a>
+            <a href="/auth/signup/" class="bg-white text-blue-700 border-2 border-blue-100 px-8 py-4 rounded-xl font-bold text-lg hover:border-blue-300 hover:bg-blue-50 shadow-sm transition-all text-center w-full sm:w-auto">
+                Start Pitch
+            </a>
+        </div>
+        
+        <p class="mt-8 text-gray-500">Already have an account? <a href="/auth/login/" class="text-blue-600 font-medium hover:underline">Log in here</a></p>
+    {% endif %}
+</div>
+{% endblock %}
