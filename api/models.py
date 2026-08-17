@@ -46,6 +46,11 @@ class Session(models.Model):
         ('completed', 'Completed'),
     )
 
+    SOURCE_CHOICES = (
+        ('ai_generated', 'AI Generated'),
+        ('user_uploaded', 'User Uploaded'),
+    )
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sessions')
     mode = models.CharField(max_length=20, choices=MODE_CHOICES)
@@ -53,6 +58,8 @@ class Session(models.Model):
     difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES)
     overall_score = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
+    user_uploaded_questions = models.TextField(null=True, blank=True)
+    questions_source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='ai_generated')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -64,6 +71,16 @@ class Session(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.get_mode_display()} ({self.created_at.date() if self.created_at else ''})"
+
+    @property
+    def average_score(self):
+        """Template-facing alias for the stored overall_score."""
+        return self.overall_score
+
+    @property
+    def score(self):
+        """Template-facing alias for the stored overall_score."""
+        return self.overall_score
 
 class Question(models.Model):
     CATEGORY_CHOICES = (

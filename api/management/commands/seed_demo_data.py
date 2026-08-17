@@ -8,24 +8,45 @@ class Command(BaseCommand):
     help = 'Seeds the database with demo data.'
 
     def handle(self, *args, **options):
-        # Create or update demo user
+        # Create or update regular user
         user, created = User.objects.get_or_create(
-            email='demo@example.com',
+            email='user@pitchpal.com',
             defaults={
-                'username': 'demo_user',
-                'first_name': 'Demo',
+                'username': 'user',
+                'first_name': 'Regular',
                 'last_name': 'User',
-                'subscription_tier': 'pro'
+                'subscription_tier': 'pro',
+                'is_staff': False,
+                'is_superuser': False
             }
         )
-        # Always set the password so it doesn't get messed up
-        user.set_password('demo123')
+        user.set_password('pitchpal')
         user.save()
 
         if created:
-            self.stdout.write(self.style.SUCCESS('Successfully created demo user (demo@example.com / demo123)'))
+            self.stdout.write(self.style.SUCCESS('Successfully created user (user@pitchpal.com / pitchpal)'))
         else:
-            self.stdout.write(self.style.SUCCESS('Demo user already exists, updated password to demo123'))
+            self.stdout.write(self.style.SUCCESS('User already exists, updated password'))
+
+        # Create or update admin user
+        admin, admin_created = User.objects.get_or_create(
+            email='admin@pitchpal.com',
+            defaults={
+                'username': 'admin',
+                'first_name': 'Admin',
+                'last_name': 'User',
+                'subscription_tier': 'pro',
+                'is_staff': True,
+                'is_superuser': True
+            }
+        )
+        admin.set_password('pitchpal')
+        admin.save()
+
+        if admin_created:
+            self.stdout.write(self.style.SUCCESS('Successfully created admin (admin@pitchpal.com / pitchpal)'))
+        else:
+            self.stdout.write(self.style.SUCCESS('Admin already exists, updated password'))
 
         # Seed some progress metrics if they don't exist
         metric, m_created = ProgressMetric.objects.get_or_create(

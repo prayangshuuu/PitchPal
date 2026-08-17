@@ -128,6 +128,10 @@ STATICFILES_DIRS = [BASE_DIR / 'api' / 'static']
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+OCR_MAX_FILE_SIZE = int(os.environ.get('OCR_MAX_FILE_SIZE', 10485760)) # 10MB default
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

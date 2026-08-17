@@ -6,7 +6,7 @@
         <div class="uppercase tracking-wide text-sm text-blue-600 font-semibold mb-1">New Session</div>
         <h2 class="text-2xl leading-tight font-bold text-gray-900 mb-6">Configure Your Practice</h2>
         
-        <form method="POST" action="/sessions/start/" class="space-y-6">
+        <form method="POST" action="/sessions/start/" enctype="multipart/form-data" class="space-y-6" id="session-form">
             {% csrf_token %}
             
             {% if form.errors %}
@@ -14,6 +14,40 @@
                 Please correct the errors below.
             </div>
             {% endif %}
+
+            <!-- Questions Source: OCR vs AI -->
+            <div class="bg-blue-50/50 p-5 rounded-lg border border-blue-100 mb-6">
+                <h3 class="text-sm font-semibold text-blue-900 mb-3">Questions Source</h3>
+                
+                <div class="mb-4">
+                    <label for="questions_file" class="block text-sm font-medium text-gray-700 mb-2">Upload Interview Questions (Optional)</label>
+                    <input type="file" id="questions_file" name="questions_file" accept=".jpg,.jpeg,.png,.pdf" 
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="mt-1 text-xs text-gray-500">Supported formats: JPG, PNG, PDF (Max 10MB)</p>
+                </div>
+
+                <div id="upload-preview" class="hidden mt-4 space-y-4">
+                    <div id="image-preview-container" class="hidden">
+                        <p class="text-xs font-medium text-gray-500 mb-1">Image Preview:</p>
+                        <img id="image-preview" src="#" alt="Preview" class="h-32 object-contain rounded border bg-white p-1">
+                    </div>
+                    <div id="ocr-status" class="text-sm text-blue-600">Extracting questions...</div>
+                    <div id="ocr-error" class="hidden text-sm text-red-600"></div>
+                    
+                    <div id="extracted-questions-container" class="hidden space-y-2">
+                        <p class="text-xs font-medium text-gray-700">Extracted Questions (Edit as needed):</p>
+                        <div id="questions-list" class="space-y-2"></div>
+                        <input type="hidden" name="edited_questions" id="edited_questions">
+                        <button type="button" id="confirm-questions-btn" class="mt-2 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Use These Questions
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-center py-2">
+                    <span class="text-xs text-gray-400 uppercase tracking-wider">Or generate AI questions</span>
+                </div>
+            </div>
 
             <!-- Role Selection -->
             <div>
@@ -99,4 +133,82 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.getElementById('questions_file').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const previewContainer = document.getElementById('upload-preview');
+        const imgContainer = document.getElementById('image-preview-container');
+        const imgPreview = document.getElementById('image-preview');
+        const statusEl = document.getElementById('ocr-status');
+        const errorEl = document.getElementById('ocr-error');
+        const questionsContainer = document.getElementById('extracted-questions-container');
+        const questionsList = document.getElementById('questions-list');
+        
+        previewContainer.classList.remove('hidden');
+        statusEl.classList.remove('hidden');
+        errorEl.classList.add('hidden');
+        questionsContainer.classList.add('hidden');
+
+        // Show thumbnail for images
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imgPreview.src = e.target.result;
+                imgContainer.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+        } else {
+            imgContainer.classList.add('hidden');
+        }
+
+        // Upload and extract
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/sessions/extract-questions/', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to extract text');
+            }
+
+            statusEl.classList.add('hidden');
+            questionsContainer.classList.remove('hidden');
+            
+            // Populate questions
+            questionsList.innerHTML = '';
+            data.extracted_questions.forEach((q, idx) => {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'w-full text-sm border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 p-2 border';
+                input.value = q;
+                input.dataset.idx = idx;
+                questionsList.appendChild(input);
+            });
+
+            // Update hidden field on confirmation
+            document.getElementById('confirm-questions-btn').onclick = function() {
+                const inputs = questionsList.querySelectorAll('input');
+                const editedQuestions = Array.from(inputs).map(i => i.value).filter(v => v.trim() !== '');
+                document.getElementById('edited_questions').value = JSON.stringify(editedQuestions);
+                
+                this.textContent = 'Questions Confirmed ✓';
+                this.classList.replace('bg-blue-600', 'bg-green-600');
+                this.classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+            };
+
+        } catch (err) {
+            statusEl.classList.add('hidden');
+            errorEl.textContent = err.message;
+            errorEl.classList.remove('hidden');
+        }
+    });
+</script>
 {% endblock %}
