@@ -68,6 +68,9 @@ def submit_answer(
         feedback=result.get("feedback", ""),
         strengths=json.dumps(result.get("strengths", [])),
         improvements=json.dumps(result.get("improvements", [])),
+        example_answer=result.get("example_answer", ""),
+        refined_answer=result.get("refined_answer", ""),
+        missing_skills=json.dumps(result.get("missing_skills", [])),
         raw_response=result.get("raw_response"),
     )
 

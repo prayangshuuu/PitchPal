@@ -121,6 +121,9 @@ class TestEvaluateAnswer:
             "feedback": "Well-structured answer with a concrete example.",
             "strengths": ["Clear structure"],
             "improvements": ["Add more metrics"],
+            "example_answer": "A strong sample answer would highlight...",
+            "refined_answer": "I am a software engineer who...",
+            "missing_skills": ["Quantifying impact with metrics"],
         }
         mock_model = MagicMock()
         mock_model.generate_content.return_value = _mock_response(payload)
@@ -136,6 +139,9 @@ class TestEvaluateAnswer:
             "feedback",
             "strengths",
             "improvements",
+            "example_answer",
+            "refined_answer",
+            "missing_skills",
             "raw_response",
         }
         assert 0 <= result["score"] <= 100
@@ -145,6 +151,9 @@ class TestEvaluateAnswer:
         assert isinstance(result["feedback"], str)
         assert isinstance(result["strengths"], list)
         assert isinstance(result["improvements"], list)
+        assert isinstance(result["example_answer"], str)
+        assert isinstance(result["refined_answer"], str)
+        assert isinstance(result["missing_skills"], list)
         assert json.loads(result["raw_response"]) == payload
 
     def test_falls_back_when_api_key_missing(self, monkeypatch):
@@ -155,6 +164,9 @@ class TestEvaluateAnswer:
         assert result["score"] == 50
         assert result["strengths"] == []
         assert result["improvements"] == []
+        assert result["missing_skills"] == []
+        assert result["example_answer"] == ""
+        assert result["refined_answer"] == ""
         assert isinstance(result["feedback"], str) and result["feedback"]
 
     def test_falls_back_on_api_exception(self, monkeypatch):
@@ -180,6 +192,9 @@ class TestEvaluateAnswer:
             "feedback",
             "strengths",
             "improvements",
+            "example_answer",
+            "refined_answer",
+            "missing_skills",
             "raw_response",
         }
         assert result["raw_response"] is None

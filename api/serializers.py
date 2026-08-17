@@ -28,12 +28,14 @@ class SessionSerializer(serializers.ModelSerializer):
 class EvaluationSerializer(serializers.ModelSerializer):
     strengths = serializers.SerializerMethodField()
     improvements = serializers.SerializerMethodField()
+    missing_skills = serializers.SerializerMethodField()
 
     class Meta:
         model = Evaluation
         fields = [
             'id', 'answer', 'score', 'clarity_score', 'depth_score',
-            'communication_score', 'feedback', 'strengths', 'improvements', 'created_at',
+            'communication_score', 'feedback', 'strengths', 'improvements',
+            'example_answer', 'refined_answer', 'missing_skills', 'created_at',
         ]
         read_only_fields = fields
 
@@ -42,6 +44,9 @@ class EvaluationSerializer(serializers.ModelSerializer):
 
     def get_improvements(self, obj):
         return self._safe_json(obj.improvements)
+
+    def get_missing_skills(self, obj):
+        return self._safe_json(obj.missing_skills)
 
     @staticmethod
     def _safe_json(value):

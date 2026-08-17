@@ -157,6 +157,11 @@ class TestEvaluationModel:
     def test_str_format(self, evaluation):
         assert str(evaluation) == f"Evaluation: {evaluation.score}/100"
 
+    def test_example_refined_and_missing_skills_default(self, evaluation):
+        assert evaluation.example_answer == ''
+        assert evaluation.refined_answer == ''
+        assert json.loads(evaluation.missing_skills) == []
+
 
 class TestProgressMetricModel:
     def test_create_metric_linked_to_user(self, user):

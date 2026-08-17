@@ -192,9 +192,12 @@ def evaluate_answer(question_text: str, answer_text: str, mode: str = "interview
         "feedback": "Unable to generate detailed feedback at this time. Keep practicing!",
         "strengths": [],
         "improvements": [],
+        "example_answer": "",
+        "refined_answer": "",
+        "missing_skills": [],
         "raw_response": None
     }
-    
+
     if not os.getenv('GEMINI_API_KEY'):
         logger.error("API key missing. Returning fallback evaluation.")
         return fallback_response
@@ -206,7 +209,12 @@ def evaluate_answer(question_text: str, answer_text: str, mode: str = "interview
             "Evaluate on clarity (0-100), depth (0-100), communication (0-100). "
             "Return ONLY JSON with keys: 'score' (average), 'clarity_score', 'depth_score', "
             "'communication_score', 'feedback' (string), 'strengths' (list of strings), "
-            "'improvements' (list of strings). Do not include markdown formatting."
+            "'improvements' (list of strings), 'example_answer' (a strong sample answer to "
+            "the same question, written in first person), 'refined_answer' (a rewritten, "
+            "improved version of the candidate's own answer that keeps their content and "
+            "voice but fixes its weaknesses), 'missing_skills' (list of specific skills or "
+            "knowledge areas the answer suggests the candidate lacks, empty list if none). "
+            "Do not include markdown formatting."
         )
         
         response = _generate_content_with_fallback(

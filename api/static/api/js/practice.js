@@ -41,6 +41,25 @@ window.PracticeUI = (function () {
   function renderFeedback(sessionId, feedback) {
     const strengthsHtml = renderBadgeList(feedback.strengths, 'None identified', 'bg-green-100 text-green-800');
     const improvementsHtml = renderBadgeList(feedback.improvements, 'None identified', 'bg-amber-100 text-amber-800');
+    const missingSkillsHtml = renderBadgeList(feedback.missing_skills, 'None identified', 'bg-red-100 text-red-800');
+    const exampleAnswerHtml = feedback.example_answer
+      ? `
+            <div class="mb-8">
+                <h4 class="flex items-center text-sm font-bold text-gray-900 mb-3">Example Answer</h4>
+                <div class="prose prose-sm max-w-none text-gray-700 bg-blue-50 border border-blue-100 rounded-lg p-4">
+                    <p>${escapeHtml(feedback.example_answer)}</p>
+                </div>
+            </div>`
+      : '';
+    const refinedAnswerHtml = feedback.refined_answer
+      ? `
+            <div class="mb-8">
+                <h4 class="flex items-center text-sm font-bold text-gray-900 mb-3">Your Answer, Refined</h4>
+                <div class="prose prose-sm max-w-none text-gray-700 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <p>${escapeHtml(feedback.refined_answer)}</p>
+                </div>
+            </div>`
+      : '';
     const actionHtml = feedback.is_last_question
       ? `<a href="/sessions/${sessionId}/results/" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700">Finish &amp; View Results &rarr;</a>`
       : `<a href="/sessions/${sessionId}/practice/?q=${feedback.next_question}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700">Next Question &rarr;</a>`;
@@ -78,7 +97,7 @@ window.PracticeUI = (function () {
                 <p>${escapeHtml(feedback.text_feedback)}</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
                 <div>
                     <h4 class="flex items-center text-sm font-bold text-gray-900 mb-3">Strengths</h4>
                     <ul class="space-y-2">${strengthsHtml}</ul>
@@ -88,6 +107,14 @@ window.PracticeUI = (function () {
                     <ul class="space-y-2">${improvementsHtml}</ul>
                 </div>
             </div>
+
+            <div class="mb-8">
+                <h4 class="flex items-center text-sm font-bold text-gray-900 mb-3">Skills to Develop</h4>
+                <ul class="space-y-2">${missingSkillsHtml}</ul>
+            </div>
+
+            ${exampleAnswerHtml}
+            ${refinedAnswerHtml}
         </div>
 
         <div class="bg-gray-50 px-6 py-4 sm:px-8 border-t border-gray-200 flex justify-end">

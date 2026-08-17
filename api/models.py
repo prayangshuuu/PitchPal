@@ -130,6 +130,9 @@ class Evaluation(models.Model):
     feedback = models.TextField()
     strengths = models.TextField()
     improvements = models.TextField()
+    example_answer = models.TextField(blank=True, default='')
+    refined_answer = models.TextField(blank=True, default='')
+    missing_skills = models.TextField(blank=True, default='[]')
     raw_response = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
