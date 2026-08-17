@@ -1,0 +1,88 @@
+{% if user.is_authenticated %}
+<nav class="bg-blue-900 shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <a href="/" class="flex-shrink-0 flex items-center gap-2">
+                    <svg class="h-8 w-8 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    <span class="font-bold text-xl text-white tracking-tight">PitchPal</span>
+                </a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/dashboard/" class="text-sm font-medium text-blue-100 hover:text-white transition-colors">Dashboard</a>
+                <span class="text-sm text-blue-400 hidden sm:inline-block">|</span>
+                <span class="text-sm text-blue-100 font-medium hidden sm:inline-block">{{ user.email }}</span>
+                <form method="POST" action="/auth/logout/" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="text-sm font-medium text-red-300 hover:text-red-100 transition-colors">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+{% elif is_landing_page %}
+<nav class="bg-white/90 backdrop-blur border-b border-gray-100 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <a href="#top" class="flex-shrink-0 flex items-center gap-2">
+                    <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    <span class="font-bold text-xl text-blue-900 tracking-tight">PitchPal</span>
+                </a>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#features" class="nav-scroll-link text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Features</a>
+
+                <a href="#faq" class="nav-scroll-link text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">FAQ</a>
+                <a href="/auth/login/" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Login</a>
+                <a href="/auth/signup/" class="text-sm font-semibold bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 shadow-sm transition-all hover:-translate-y-0.5">Sign Up</a>
+            </div>
+
+            <div class="flex items-center md:hidden">
+                <button type="button" id="mobile-menu-button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Toggle navigation menu" class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
+                    <svg id="menu-icon-open" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <svg id="menu-icon-close" class="h-7 w-7 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white">
+        <div class="px-4 pt-2 pb-4 space-y-1">
+            <a href="#features" class="nav-scroll-link block px-3 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600">Features</a>
+
+            <a href="#faq" class="nav-scroll-link block px-3 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600">FAQ</a>
+            <a href="/auth/login/" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600">Login</a>
+            <a href="/auth/signup/" class="block px-3 py-3 rounded-md text-base font-semibold bg-blue-600 text-white text-center hover:bg-blue-700">Sign Up</a>
+        </div>
+    </div>
+</nav>
+{% else %}
+<nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <a href="/" class="flex-shrink-0 flex items-center gap-2">
+                    <svg class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    <span class="font-bold text-xl text-blue-600 tracking-tight">PitchPal</span>
+                </a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="/auth/login/" class="text-sm font-medium text-gray-700 hover:text-blue-600">Log in</a>
+                <a href="/auth/signup/" class="text-sm font-medium bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">Sign up</a>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endif %}

@@ -32,9 +32,17 @@ def generate_questions_for_session(session, uploaded_questions=None, count=QUEST
     ])
 
 
-def submit_answer(session, question, answer_text):
+def submit_answer(session, question, answer_text, answer_type='text', audio_file=None, transcribed_text=None, transcription_confidence=0, is_transcribed=False):
     """Record an answer, evaluate it, and complete the session if this was the last question."""
-    answer = Answer.objects.create(question=question, user_text=answer_text)
+    answer = Answer.objects.create(
+        question=question, 
+        user_text=answer_text,
+        answer_type=answer_type,
+        audio_file=audio_file,
+        transcribed_text=transcribed_text,
+        transcription_confidence=transcription_confidence,
+        is_transcribed=is_transcribed
+    )
 
     result = gemini_service.evaluate_answer(question.text, answer_text, mode=session.mode)
     evaluation = Evaluation.objects.create(

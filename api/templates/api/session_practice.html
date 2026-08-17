@@ -5,7 +5,7 @@
     <!-- Progress Bar -->
     <div class="mb-6">
         <div class="flex justify-between items-center mb-2">
-            <span class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Question {{ question_number }} of 5</span>
+            <span class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Question {{ question_number }} of {{ total_questions }}</span>
             <span class="text-sm text-gray-500">{{ session.get_mode_display|title }} &bull; {{ session.get_role_display }}</span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -17,33 +17,90 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
         <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight mb-6">{{ current_question.text }}</h2>
         
-        <form id="practice-form"
-              hx-post="/sessions/{{ session.id }}/submit/" 
-              hx-target="#feedback-container" 
-              hx-swap="innerHTML"
-              hx-indicator="#loading-spinner">
-            {% csrf_token %}
-            <input type="hidden" name="question_id" value="{{ current_question.id }}">
-            
-            <div class="mb-4">
-                <label for="answer_text" class="sr-only">Your Answer</label>
-                <textarea id="answer_text" name="answer_text" rows="6" 
-                          class="block w-full rounded-lg border-gray-300 border p-4 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base"
-                          placeholder="Type your answer here as if you were speaking it out loud..." required></textarea>
-            </div>
-            
-            <div class="flex justify-end items-center">
-                <button type="submit" id="submit-answer-btn" 
-                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                    <span>Submit Answer</span>
-                    <!-- Loading Spinner -->
-                    <svg id="loading-spinner" class="htmx-indicator ml-2 -mr-1 h-5 w-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+        <div class="session-practice-container" data-session-id="{{ session.id }}" data-question-id="{{ current_question.id }}">
+          <!-- Toggle: Text Input vs Voice Recording -->
+          <div class="answer-mode-toggle flex gap-4 mb-6">
+            <button class="mode-btn active px-4 py-2 rounded-md bg-blue-100 text-blue-700 font-medium" data-mode="text">Type Answer</button>
+            <button class="mode-btn px-4 py-2 rounded-md text-gray-600 hover:bg-gray-100 font-medium" data-mode="voice">Record Answer</button>
+          </div>
+
+          <!-- Text Input Mode (default) -->
+          <div id="text-mode" class="answer-mode">
+            <form id="practice-form"
+                  hx-post="/sessions/{{ session.id }}/submit/" 
+                  hx-target="#feedback-container" 
+                  hx-swap="innerHTML"
+                  hx-indicator="#loading-spinner">
+                {% csrf_token %}
+                <input type="hidden" name="question_id" value="{{ current_question.id }}">
+                <input type="hidden" name="answer_type" value="text">
+                
+                <div class="mb-4">
+                    <label for="answer_text" class="sr-only">Your Answer</label>
+                    <textarea id="answer_text" name="answer_text" rows="6" 
+                              class="block w-full rounded-lg border-gray-300 border p-4 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base"
+                              placeholder="Type your answer here as if you were speaking it out loud..." required></textarea>
+                </div>
+                
+                <div class="flex justify-end items-center">
+                    <button type="submit" id="submit-answer-btn" 
+                            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        <span>Submit Answer</span>
+                        <!-- Loading Spinner -->
+                        <svg id="loading-spinner" class="htmx-indicator ml-2 -mr-1 h-5 w-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+          </div>
+
+          <!-- Voice Recording Mode -->
+          <div id="voice-mode" class="answer-mode" style="display:none;">
+            <div class="recording-controls">
+              <!-- Recording Display -->
+              <div id="recording-display" class="mb-6">
+                <div class="recording-indicator">
+                  <span id="recording-dot" class="recording-dot" style="display:none;"></span>
+                  <span id="recording-timer">0:00</span>
+                </div>
+                <canvas id="waveform-canvas" class="waveform-display mt-4"></canvas>
+              </div>
+
+              <!-- Buttons -->
+              <div class="recording-buttons mb-6">
+                <button id="start-recording-btn" class="btn btn-primary">Start Recording</button>
+                <button id="stop-recording-btn" class="btn btn-danger" style="display:none;">Stop Recording</button>
+                <button id="play-recording-btn" class="btn btn-secondary" style="display:none;">Play Recording</button>
+                <button id="delete-recording-btn" class="btn btn-outline" style="display:none;">Delete & Re-record</button>
+              </div>
+
+              <!-- Transcription Display -->
+              <div id="transcription-container" style="display:none;" class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Transcribed Text:</label>
+                <div id="transcription-status" class="text-sm text-gray-500 mb-2">Transcribing...</div>
+                <textarea id="transcribed-text" class="w-full p-4 border rounded-lg bg-gray-50" rows="6" readonly></textarea>
+                <div id="confidence-display" class="text-sm text-gray-500 mt-2">Confidence: <span id="confidence-value">--</span>%</div>
+              </div>
+
+              <!-- Edit Mode -->
+              <div id="transcription-edit-container" style="display:none;" class="mb-6">
+                <label class="block text-sm font-semibold mb-2">Edit Transcription (optional):</label>
+                <textarea id="transcription-edit-text" class="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500" rows="6"></textarea>
+                <button id="submit-voice-btn" class="btn btn-primary mt-4 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    Submit Answer
                 </button>
+              </div>
             </div>
-        </form>
+          </div>
+
+          <!-- Loading Spinner (during transcription) -->
+          <div id="transcription-loading" class="loading-spinner" style="display:none;">
+            <div class="spinner"></div>
+            <p class="text-gray-600 font-medium mt-4">Converting voice to text...</p>
+          </div>
+        </div>
     </div>
 
     <!-- Feedback Container (populated by HTMX) -->
@@ -51,4 +108,9 @@
         <!-- Partials will load here -->
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'api/js/voice-recorder.js' %}"></script>
 {% endblock %}

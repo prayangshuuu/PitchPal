@@ -18,15 +18,11 @@ class TestUserModel:
             username="alice",
             email="alice@example.com",
             password="Sup3rSecret!",
-            subscription_tier="pro",
         )
         assert user.pk is not None
         assert user.email == "alice@example.com"
-        assert user.subscription_tier == "pro"
 
-    def test_default_subscription_tier_is_free(self, db):
-        user = User.objects.create_user(username="bob", email="bob@example.com", password="Sup3rSecret!")
-        assert user.subscription_tier == "free"
+
 
     def test_email_unique_constraint(self, user):
         with pytest.raises(IntegrityError):

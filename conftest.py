@@ -24,7 +24,6 @@ def user(db):
         username="jane_doe",
         email="jane@example.com",
         password="StrongPass123!",
-        subscription_tier="free",
     )
 
 

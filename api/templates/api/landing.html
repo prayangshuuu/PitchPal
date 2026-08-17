@@ -1,0 +1,445 @@
+{% extends 'api/base.html' %}
+
+{% block title %}PitchPal - Practice Every Pitch Before The Real One{% endblock %}
+{% block main_class %}flex-grow w-full{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "PitchPal",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Web",
+  "description": "AI-powered interview coach offering real-time feedback and unlimited mock interview practice.",
+  "offers": {
+    "@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "1200"
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div id="top">
+
+<!-- ================= HERO ================= -->
+<section class="relative overflow-hidden bg-gradient-to-b from-blue-50 via-white to-white">
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-blue-200/40 blur-3xl"></div>
+        <div class="absolute top-1/2 -left-24 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 sm:pt-24 sm:pb-28">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div class="text-center lg:text-left reveal">
+                <span class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
+                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.519-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                    AI-powered interview coaching
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-blue-900 tracking-tight leading-tight mb-6">
+                    Practice Every Pitch <br class="hidden lg:block" />
+                    <span class="text-blue-600">Before The Real One.</span>
+                </h1>
+                <p class="text-lg sm:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 mb-8">
+                    AI-powered interview coach. Real-time feedback. Unlimited practice.
+                    Walk into your next interview, pitch, or presentation ready.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
+                    <a href="/auth/signup/" class="btn-ripple relative overflow-hidden bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 shadow-lg transition-all transform hover:-translate-y-1 text-center">
+                        Get Started
+                    </a>
+                    <a href="#demo" class="nav-scroll-link bg-white text-blue-700 border-2 border-blue-200 px-8 py-4 rounded-xl font-bold text-lg hover:border-blue-400 hover:bg-blue-50 shadow-sm transition-all text-center">
+                        View Demo
+                    </a>
+                </div>
+                <div class="flex items-center justify-center lg:justify-start gap-2 text-sm text-gray-500">
+                    <div class="flex -space-x-2">
+                        <span class="h-8 w-8 rounded-full bg-blue-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold">SC</span>
+                        <span class="h-8 w-8 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold">RP</span>
+                        <span class="h-8 w-8 rounded-full bg-purple-500 border-2 border-white flex items-center justify-center text-white text-xs font-bold">LR</span>
+                    </div>
+                    <span>Used by <strong class="text-gray-900 counter" data-target="10000" data-suffix="+">0</strong> job seekers</span>
+                </div>
+            </div>
+
+            <div class="reveal relative">
+                <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 sm:p-8 max-w-md mx-auto">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-2">
+                            <span class="h-3 w-3 rounded-full bg-red-400"></span>
+                            <span class="h-3 w-3 rounded-full bg-amber-400"></span>
+                            <span class="h-3 w-3 rounded-full bg-emerald-400"></span>
+                        </div>
+                        <span class="text-xs font-medium text-gray-400">Practice Session &middot; SDE</span>
+                    </div>
+                    <p class="text-sm font-semibold text-gray-500 mb-2">Question 3 of 5</p>
+                    <p class="text-gray-900 font-medium mb-6">"Tell me about a time you disagreed with a technical decision. How did you handle it?"</p>
+                    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 mb-4 text-sm text-gray-500 italic">
+                        Recording answer&hellip;
+                    </div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-md">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z"/><path d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"/></svg>
+                        </span>
+                        <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 w-2/3 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-bold text-emerald-800">Feedback ready</span>
+                            <span class="text-lg font-extrabold text-emerald-700">86<span class="text-xs font-medium">/100</span></span>
+                        </div>
+                        <p class="text-xs text-emerald-700">Strong structure and clear ownership of the disagreement. Add a measurable outcome next time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= PROBLEMS ================= -->
+<section class="py-20 sm:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-14 reveal">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight mb-4">Interview prep is broken</h2>
+            <p class="text-lg text-gray-600">Most job seekers walk in underprepared, over-anxious, and without a way to know what "good" actually sounds like.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="reveal bg-gray-50 rounded-xl p-8 border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all">
+                <div class="h-14 w-14 rounded-xl bg-red-100 flex items-center justify-center mb-5 text-2xl">😰</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Anxiety Before Interviews</h3>
+                <p class="text-gray-500 mb-4">70% of candidates feel unprepared walking into a real interview.</p>
+                <p class="text-sm font-semibold text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2 inline-block">✓ Practice with realistic questions</p>
+            </div>
+            <div class="reveal bg-gray-50 rounded-xl p-8 border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all" style="transition-delay:100ms">
+                <div class="h-14 w-14 rounded-xl bg-amber-100 flex items-center justify-center mb-5 text-2xl">❓</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No Real Feedback</h3>
+                <p class="text-gray-500 mb-4">Friends and family can't give you expert-level, honest feedback.</p>
+                <p class="text-sm font-semibold text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2 inline-block">✓ AI evaluates clarity, depth &amp; communication</p>
+            </div>
+            <div class="reveal bg-gray-50 rounded-xl p-8 border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all" style="transition-delay:200ms">
+                <div class="h-14 w-14 rounded-xl bg-blue-100 flex items-center justify-center mb-5 text-2xl">⏰</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Limited Practice Time</h3>
+                <p class="text-gray-500 mb-4">Human coaching costs $100&ndash;$500 an hour and needs scheduling.</p>
+                <p class="text-sm font-semibold text-emerald-700 bg-emerald-50 rounded-lg px-3 py-2 inline-block">✓ Practice 24/7 for free</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section id="features" class="py-20 sm:py-24 bg-gray-50 scroll-mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-14 reveal">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight mb-4">Packed With Powerful Features</h2>
+            <p class="text-lg text-gray-600">Everything you need to walk into your next interview with confidence.</p>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="reveal bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                <div class="h-12 w-12 rounded-lg bg-blue-600 flex items-center justify-center mb-4 text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 text-lg mb-1">AI-Generated Questions</h3>
+                <p class="text-gray-500 text-sm mb-2">Realistic questions tailored to your role and level.</p>
+                <p class="text-xs text-gray-400 font-medium">SDE, PM, Designer, QA &mdash; all roles covered</p>
+            </div>
+            <div class="reveal bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all" style="transition-delay:60ms">
+                <div class="h-12 w-12 rounded-lg bg-emerald-600 flex items-center justify-center mb-4 text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 text-lg mb-1">Real-Time Feedback</h3>
+                <p class="text-gray-500 text-sm mb-2">Get score, feedback, and tips within seconds.</p>
+                <p class="text-xs text-gray-400 font-medium">Clarity, technical depth &amp; communication analyzed</p>
+            </div>
+            <div class="reveal bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all" style="transition-delay:120ms">
+                <div class="h-12 w-12 rounded-lg bg-purple-600 flex items-center justify-center mb-4 text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 text-lg mb-1">Voice Recording</h3>
+                <p class="text-gray-500 text-sm mb-2">Record answers out loud and practice speaking.</p>
+                <p class="text-xs text-gray-400 font-medium">Auto-transcribed and evaluated</p>
+            </div>
+            <div class="reveal bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                <div class="h-12 w-12 rounded-lg bg-amber-500 flex items-center justify-center mb-4 text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 text-lg mb-1">OCR Question Upload</h3>
+                <p class="text-gray-500 text-sm mb-2">Upload images or PDFs with questions.</p>
+                <p class="text-xs text-gray-400 font-medium">AI extracts and creates your practice session</p>
+            </div>
+            <div class="reveal bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all" style="transition-delay:60ms">
+                <div class="h-12 w-12 rounded-lg bg-blue-900 flex items-center justify-center mb-4 text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 text-lg mb-1">Job Context Personalization</h3>
+                <p class="text-gray-500 text-sm mb-2">Personalize feedback for your target role.</p>
+                <p class="text-xs text-gray-400 font-medium">Add company, experience &amp; skills for tailored tips</p>
+            </div>
+            <div class="reveal bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all" style="transition-delay:120ms">
+                <div class="h-12 w-12 rounded-lg bg-rose-600 flex items-center justify-center mb-4 text-white">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                </div>
+                <h3 class="font-bold text-gray-900 text-lg mb-1">Progress Tracking</h3>
+                <p class="text-gray-500 text-sm mb-2">Track your improvement over time.</p>
+                <p class="text-xs text-gray-400 font-medium">Score trends, achievements &amp; recommendations</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="py-20 sm:py-24 bg-white overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-16 reveal">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight mb-4">How PitchPal Works</h2>
+            <p class="text-lg text-gray-600">Five simple steps between you and your next offer.</p>
+        </div>
+
+        <div class="relative grid grid-cols-1 md:grid-cols-5 gap-10 md:gap-4">
+            <div class="hidden md:block absolute top-8 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-100 via-blue-300 to-blue-100" style="margin: 0 10%;"></div>
+
+            <div class="reveal relative text-center">
+                <div class="relative z-10 mx-auto h-16 w-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-lg mb-4">1</div>
+                <h3 class="font-bold text-gray-900 mb-1">Choose Your Role</h3>
+                <p class="text-sm text-gray-500">Select role, difficulty, and interview type.</p>
+            </div>
+            <div class="reveal relative text-center" style="transition-delay:80ms">
+                <div class="relative z-10 mx-auto h-16 w-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-lg mb-4">2</div>
+                <h3 class="font-bold text-gray-900 mb-1">Get Questions</h3>
+                <p class="text-sm text-gray-500">AI generates 5 realistic questions for you.</p>
+            </div>
+            <div class="reveal relative text-center" style="transition-delay:160ms">
+                <div class="relative z-10 mx-auto h-16 w-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-lg mb-4">3</div>
+                <h3 class="font-bold text-gray-900 mb-1">Practice Answering</h3>
+                <p class="text-sm text-gray-500">Record or type your answers.</p>
+            </div>
+            <div class="reveal relative text-center" style="transition-delay:240ms">
+                <div class="relative z-10 mx-auto h-16 w-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-lg mb-4">4</div>
+                <h3 class="font-bold text-gray-900 mb-1">Get Instant Feedback</h3>
+                <p class="text-sm text-gray-500">Score, strengths, and improvements.</p>
+            </div>
+            <div class="reveal relative text-center" style="transition-delay:320ms">
+                <div class="relative z-10 mx-auto h-16 w-16 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-lg mb-4">5</div>
+                <h3 class="font-bold text-gray-900 mb-1">Track Progress</h3>
+                <p class="text-sm text-gray-500">See trends and improvement over time.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= DEMO ================= -->
+<section id="demo" class="py-20 sm:py-24 bg-blue-900 scroll-mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12 reveal">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">See It In Action</h2>
+            <p class="text-lg text-blue-200">Practice a question, get instant AI feedback with scores, strengths, and improvement tips.</p>
+        </div>
+        <div class="reveal grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div class="bg-white rounded-xl p-6 shadow-xl">
+                <p class="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-2">Practice</p>
+                <p class="font-semibold text-gray-900 mb-4">"Walk me through a project where you had to make a trade-off between speed and quality."</p>
+                <div class="h-24 rounded-lg bg-gray-50 border border-gray-200 p-3 text-sm text-gray-400 italic">Typing your answer&hellip;</div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-xl">
+                <p class="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-2">Feedback</p>
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="text-3xl font-extrabold text-emerald-600">91</span>
+                    <span class="text-sm text-gray-400">/ 100</span>
+                </div>
+                <ul class="text-sm text-gray-600 space-y-1.5">
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span> Clear structure with concrete trade-off reasoning</li>
+                    <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span> Strong ownership language</li>
+                    <li class="flex items-start gap-2"><span class="text-amber-500 mt-0.5">→</span> Add a measurable business outcome</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center mt-10 reveal">
+            <a href="/auth/login/" class="inline-block bg-white text-blue-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 shadow-lg transition-all transform hover:-translate-y-1">
+                Try Demo
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ================= TESTIMONIALS ================= -->
+<section class="py-20 sm:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-14 reveal">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight mb-4">Join 10K+ Successful Job Seekers</h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="reveal bg-gray-50 rounded-xl p-8 border border-gray-100">
+                <div class="flex text-amber-400 mb-4">★★★★★</div>
+                <p class="text-gray-700 mb-6">&ldquo;Went from a 60 average to an 82 in two weeks. PitchPal gave me the confidence I needed!&rdquo;</p>
+                <div class="flex items-center gap-3">
+                    <span class="h-11 w-11 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">SC</span>
+                    <div>
+                        <p class="font-bold text-gray-900 text-sm">Sarah Chen</p>
+                        <p class="text-xs text-gray-500">SDE at Google</p>
+                    </div>
+                </div>
+            </div>
+            <div class="reveal bg-gray-50 rounded-xl p-8 border border-gray-100" style="transition-delay:100ms">
+                <div class="flex text-amber-400 mb-4">★★★★★</div>
+                <p class="text-gray-700 mb-6">&ldquo;The real-time feedback was game-changing. I nailed my PM interviews!&rdquo;</p>
+                <div class="flex items-center gap-3">
+                    <span class="h-11 w-11 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold">RP</span>
+                    <div>
+                        <p class="font-bold text-gray-900 text-sm">Raj Patel</p>
+                        <p class="text-xs text-gray-500">PM at Meta</p>
+                    </div>
+                </div>
+            </div>
+            <div class="reveal bg-gray-50 rounded-xl p-8 border border-gray-100" style="transition-delay:200ms">
+                <div class="flex text-amber-400 mb-4">★★★★★</div>
+                <p class="text-gray-700 mb-6">&ldquo;Finally, a coach that's available 24/7 and actually affordable!&rdquo;</p>
+                <div class="flex items-center gap-3">
+                    <span class="h-11 w-11 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">LR</span>
+                    <div>
+                        <p class="font-bold text-gray-900 text-sm">Lisa Rodriguez</p>
+                        <p class="text-xs text-gray-500">Designer at Airbnb</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ================= FAQ ================= -->
+<section id="faq" class="py-20 sm:py-24 bg-white scroll-mt-16">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-14 reveal">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight mb-4">Frequently Asked Questions</h2>
+        </div>
+        <div class="space-y-3 reveal">
+            <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                <button type="button" class="faq-trigger w-full flex justify-between items-center text-left px-6 py-4 font-semibold text-gray-900 hover:bg-gray-50 transition-colors" aria-expanded="false">
+                    <span>Is PitchPal really free?</span>
+                    <svg class="faq-icon h-5 w-5 text-gray-400 transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-panel hidden px-6 pb-4 text-gray-600 text-sm">
+                    Yes! You get 5 free sessions per month with AI-generated questions and basic feedback.
+                </div>
+            </div>
+            <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                <button type="button" class="faq-trigger w-full flex justify-between items-center text-left px-6 py-4 font-semibold text-gray-900 hover:bg-gray-50 transition-colors" aria-expanded="false">
+                    <span>What roles does PitchPal support?</span>
+                    <svg class="faq-icon h-5 w-5 text-gray-400 transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-panel hidden px-6 pb-4 text-gray-600 text-sm">
+                    SDE (Software Engineer), PM (Product Manager), Designer, QA Engineer, and other roles. More coming soon!
+                </div>
+            </div>
+            <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                <button type="button" class="faq-trigger w-full flex justify-between items-center text-left px-6 py-4 font-semibold text-gray-900 hover:bg-gray-50 transition-colors" aria-expanded="false">
+                    <span>How accurate is the AI feedback?</span>
+                    <svg class="faq-icon h-5 w-5 text-gray-400 transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-panel hidden px-6 pb-4 text-gray-600 text-sm">
+                    Our AI evaluates answers on clarity, technical depth, and communication, trained on real interview patterns.
+                </div>
+            </div>
+            <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                <button type="button" class="faq-trigger w-full flex justify-between items-center text-left px-6 py-4 font-semibold text-gray-900 hover:bg-gray-50 transition-colors" aria-expanded="false">
+                    <span>Can I use my own questions?</span>
+                    <svg class="faq-icon h-5 w-5 text-gray-400 transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-panel hidden px-6 pb-4 text-gray-600 text-sm">
+                    Yes! Upload images or PDFs with questions, and our AI extracts them automatically.
+                </div>
+            </div>
+            <div class="faq-item border border-gray-200 rounded-xl overflow-hidden">
+                <button type="button" class="faq-trigger w-full flex justify-between items-center text-left px-6 py-4 font-semibold text-gray-900 hover:bg-gray-50 transition-colors" aria-expanded="false">
+                    <span>Do you store my recordings?</span>
+                    <svg class="faq-icon h-5 w-5 text-gray-400 transition-transform flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div class="faq-panel hidden px-6 pb-4 text-gray-600 text-sm">
+                    Recordings are processed for transcription but not stored long-term. Your privacy is important to us.
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ================= FINAL CTA ================= -->
+<section class="py-20 sm:py-24 bg-gradient-to-br from-blue-600 to-blue-900">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center reveal">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">Ready to ace your next interview?</h2>
+        <p class="text-lg text-blue-100 mb-8">Join 10K+ job seekers practicing with PitchPal.</p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="/auth/signup/" class="bg-white text-blue-900 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 shadow-lg transition-all transform hover:-translate-y-1">
+                Get Started
+            </a>
+            <a href="/auth/login/" class="text-blue-100 font-medium hover:text-white transition-colors underline underline-offset-4">
+                Or try demo account
+            </a>
+        </div>
+    </div>
+</section>
+
+</div>
+{% endblock %}
+
+{% block footer %}
+<footer class="bg-gray-900 text-gray-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+            <div class="lg:col-span-2">
+                <a href="#top" class="flex items-center gap-2 mb-3">
+                    <svg class="h-8 w-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                    <span class="font-bold text-xl text-white">PitchPal</span>
+                </a>
+                <p class="text-sm text-gray-400 max-w-xs">Your AI interview coach. Practice unlimited mock interviews and get real-time feedback.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold text-sm mb-4 tracking-wide uppercase">Product</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="#features" class="nav-scroll-link hover:text-white transition-colors">Features</a></li>
+
+                    <li><a href="#faq" class="nav-scroll-link hover:text-white transition-colors">FAQ</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold text-sm mb-4 tracking-wide uppercase">Company</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors">About</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Twitter</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">LinkedIn</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold text-sm mb-4 tracking-wide uppercase">Legal</h4>
+                <ul class="space-y-2.5 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p class="text-sm text-gray-500">&copy; {% now "Y" %} PitchPal. All rights reserved.</p>
+            <form class="flex w-full sm:w-auto gap-2" onsubmit="return false;">
+                <label for="newsletter-email" class="sr-only">Email address</label>
+                <input id="newsletter-email" type="email" placeholder="you@example.com" class="w-full sm:w-56 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors flex-shrink-0">Subscribe</button>
+            </form>
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<noscript><style>.reveal { opacity: 1 !important; transform: none !important; }</style></noscript>
+{% load static %}
+<script src="{% static 'api/js/landing.js' %}" defer></script>
+{% endblock %}

@@ -32,6 +32,10 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['pitchpal-649c0a175842.herokuapp.com', 'localhost', '127.0.0.1']
 
+# Trust Heroku's proxy for HTTPS (fixes Google Login callback URL being HTTP in production)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_TRUSTED_ORIGINS = ['https://pitchpal-649c0a175842.herokuapp.com']
+
 
 # Application definition
 
@@ -129,13 +133,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'api' / 'static']
+# Note: 'api/static/' is auto-discovered by Django's AppDirectoriesFinder since
+# 'api' is an installed app — listing it again in STATICFILES_DIRS would cause
+# collectstatic to warn about duplicate file paths.
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 OCR_MAX_FILE_SIZE = int(os.environ.get('OCR_MAX_FILE_SIZE', 10485760)) # 10MB default
+AUDIO_MAX_FILE_SIZE = 52428800  # 50MB
+AUDIO_MAX_DURATION = 300  # 5 minutes in seconds
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [

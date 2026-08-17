@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import google.generativeai as genai
-from google.api_core.exceptions import NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError
+from google.api_core.exceptions import NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError, PermissionDenied, InvalidArgument
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ def _generate_content_with_fallback(prompt: str, generation_config=None):
                     return model.generate_content(prompt, generation_config=generation_config)
                 else:
                     return model.generate_content(prompt)
-            except (NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError) as e:
+            except (NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError, PermissionDenied, InvalidArgument) as e:
                 logger.warning(f"Model {model_name} with key {key[:8]}... failed or unavailable, trying next. Error: {e}")
                 last_error = e
             except Exception as e:
@@ -167,6 +167,7 @@ def generate_interview_questions(role: str, difficulty: str, count: int = 5) -> 
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,
                 max_output_tokens=1000,
+                response_mime_type="application/json"
             )
         )
         
@@ -208,6 +209,7 @@ def evaluate_answer(question_text: str, answer_text: str, mode: str = "interview
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,
                 max_output_tokens=500,
+                response_mime_type="application/json"
             )
         )
         
@@ -245,6 +247,7 @@ def generate_pitch_feedback(pitch_text: str, pitch_type: str = "elevator") -> Di
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,
                 max_output_tokens=500,
+                response_mime_type="application/json"
             )
         )
         

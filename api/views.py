@@ -23,21 +23,22 @@ User = get_user_model()
 
 class HomeView(View):
     def get(self, request):
-        context = {}
-        if request.user.is_authenticated:
-            recent_sessions = (
-                Session.objects.filter(user=request.user, status='completed').order_by('-created_at')[:5]
-            )
-            completed = Session.objects.filter(
-                user=request.user, status='completed', overall_score__isnull=False
-            )
-            avg = completed.aggregate(avg=Avg('overall_score'))['avg']
-            top_role_row = completed.values('role').annotate(count=Count('id')).order_by('-count').first()
-            context.update({
-                'recent_sessions': recent_sessions,
-                'avg_score': round(avg) if avg is not None else None,
-                'top_role': top_role_row['role'] if top_role_row else None,
-            })
+        if not request.user.is_authenticated:
+            return render(request, 'api/landing.html', {'is_landing_page': True})
+
+        recent_sessions = (
+            Session.objects.filter(user=request.user, status='completed').order_by('-created_at')[:5]
+        )
+        completed = Session.objects.filter(
+            user=request.user, status='completed', overall_score__isnull=False
+        )
+        avg = completed.aggregate(avg=Avg('overall_score'))['avg']
+        top_role_row = completed.values('role').annotate(count=Count('id')).order_by('-count').first()
+        context = {
+            'recent_sessions': recent_sessions,
+            'avg_score': round(avg) if avg is not None else None,
+            'top_role': top_role_row['role'] if top_role_row else None,
+        }
         return render(request, 'api/home.html', context)
 
 
@@ -150,6 +151,7 @@ class SessionPracticeView(LoginRequiredMixin, View):
             'session': session,
             'current_question': current_question,
             'question_number': question_number,
+            'total_questions': total_questions,
             'progress_percentage': progress_percentage,
         })
 
@@ -159,8 +161,16 @@ class AnswerSubmitView(LoginRequiredMixin, View):
         session = get_object_or_404(Session, id=session_id, user=request.user)
         question = get_object_or_404(Question, id=request.POST.get('question_id'), session=session)
         answer_text = request.POST.get('answer_text', '').strip()
+        answer_type = request.POST.get('answer_type', 'text')
 
-        answer, evaluation, is_last_question = session_service.submit_answer(session, question, answer_text)
+        answer, evaluation, is_last_question = session_service.submit_answer(
+            session=session, 
+            question=question, 
+            answer_text=answer_text,
+            answer_type=answer_type,
+            transcribed_text=answer_text if answer_type == 'voice' else None,
+            is_transcribed=answer_type == 'voice'
+        )
 
         feedback = {
             'overall_score': evaluation.score,
@@ -267,3 +277,43 @@ def handler500(request):
         'error_code': 500,
         'error_message': "Something went wrong on our end. Please try again later.",
     }, status=500)
+
+@csrf_exempt
+def transcribe_voice_view(request, session_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        
+    if 'audio_file' not in request.FILES:
+        return JsonResponse({'error': 'No audio file provided'}, status=400)
+    
+    audio_file = request.FILES['audio_file']
+    
+    from api.services.speech_service import transcribe_audio_with_confidence, validate_audio_file
+    import tempfile
+    
+    # Validate
+    validation = validate_audio_file(audio_file)
+    if not validation['valid']:
+        return JsonResponse({'error': validation['error']}, status=400)
+    
+    # Save temp file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as tmp:
+        for chunk in audio_file.chunks():
+            tmp.write(chunk)
+        tmp_path = tmp.name
+    
+    # Transcribe
+    result = transcribe_audio_with_confidence(tmp_path)
+    
+    # Clean up
+    if os.path.exists(tmp_path):
+        os.remove(tmp_path)
+    
+    if not result.get('text'):
+        return JsonResponse({'error': 'Could not transcribe audio. Please try again.'}, status=400)
+    
+    return JsonResponse({
+        'transcribed_text': result['text'],
+        'confidence': result['confidence'],
+        'status': 'success'
+    }, status=200)

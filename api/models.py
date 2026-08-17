@@ -3,14 +3,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    TIER_CHOICES = (
-        ('free', 'Free'),
-        ('pro', 'Pro'),
-    )
-    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
-    subscription_tier = models.CharField(max_length=10, choices=TIER_CHOICES, default='free')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -106,9 +100,19 @@ class Question(models.Model):
         return f"Q{self.question_number}: {self.text[:50]}"
 
 class Answer(models.Model):
+    ANSWER_TYPE_CHOICES = [
+        ('text', 'Text'),
+        ('voice', 'Voice Recording'),
+    ]
+    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
-    user_text = models.TextField()
+    answer_type = models.CharField(max_length=10, choices=ANSWER_TYPE_CHOICES, default='text')
+    user_text = models.TextField()  # Final text (typed or transcribed)
+    audio_file = models.FileField(upload_to='voice_answers/', null=True, blank=True)
+    transcribed_text = models.TextField(null=True, blank=True)
+    transcription_confidence = models.FloatField(null=True, blank=True, default=0)
+    is_transcribed = models.BooleanField(default=False)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

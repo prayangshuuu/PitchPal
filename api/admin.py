@@ -3,9 +3,8 @@ from .models import User, Session, Question, Answer, Evaluation, ProgressMetric
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('email', 'username', 'subscription_tier', 'created_at', 'updated_at')
+    list_display = ('email', 'username', 'created_at', 'updated_at')
     search_fields = ('email', 'username')
-    list_filter = ('subscription_tier',)
     readonly_fields = ('id', 'created_at', 'updated_at')
 
 @admin.register(Session)

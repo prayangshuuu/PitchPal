@@ -66,9 +66,9 @@ class Command(BaseCommand):
         parser.add_argument("--reset", action="store_true", help="Delete existing demo data before reseeding.")
 
     def handle(self, *args, **options):
-        demo_user = self._get_or_create_user("demo_user", "demo@example.com", "free")
+        demo_user = self._get_or_create_user("demo_user", "demo@example.com")
         admin_user = self._get_or_create_user(
-            "admin_user", "admin@example.com", "pro", is_staff=True, is_superuser=True
+            "admin_user", "admin@example.com", is_staff=True, is_superuser=True
         )
 
         if options["reset"]:
@@ -85,9 +85,9 @@ class Command(BaseCommand):
         self.stdout.write(f"  demo@example.com  / {DEMO_PASSWORD}")
         self.stdout.write(f"  admin@example.com / {DEMO_PASSWORD}")
 
-    def _get_or_create_user(self, username, email, tier, **extra):
+    def _get_or_create_user(self, username, email, **extra):
         user, created = User.objects.get_or_create(
-            email=email, defaults={"username": username, "subscription_tier": tier, **extra}
+            email=email, defaults={"username": username, **extra}
         )
         # Always pin the demo password so the login page's demo-login buttons keep working,
         # even if this user already existed from an earlier version of this command.

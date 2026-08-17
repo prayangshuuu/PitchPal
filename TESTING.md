@@ -79,7 +79,7 @@ Current result: **63 passed**, 0 failed.
 
 Covers every model in `api/models.py`:
 
-- **User**: creation with email/password/subscription_tier, default tier is `free`, email
+- **User**: creation with email/password, email
   uniqueness (`IntegrityError` on duplicate), `__str__` returns email, timestamps auto-set,
   password is hashed (`check_password` round-trips, raw password never stored).
 - **Session**: creation with all fields, FK to `User` and reverse `user.sessions`, choice
