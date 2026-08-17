@@ -18,6 +18,27 @@ def _install_mock_model(monkeypatch, mock_model):
     monkeypatch.setattr(gemini_service.genai, "GenerativeModel", MagicMock(return_value=mock_model))
 
 
+class TestCleanJsonResponse:
+    def test_cleans_markdown_json_blocks(self):
+        dirty = "```json\n{\"key\": \"value\"}\n```"
+        cleaned = gemini_service._clean_json_response(dirty)
+        assert cleaned == "{\"key\": \"value\"}"
+
+    def test_cleans_markdown_blocks_without_language(self):
+        dirty = "```\n{\"key\": \"value\"}\n```"
+        cleaned = gemini_service._clean_json_response(dirty)
+        assert cleaned == "{\"key\": \"value\"}"
+
+    def test_leaves_clean_json_alone(self):
+        clean = "{\"key\": \"value\"}"
+        assert gemini_service._clean_json_response(clean) == clean
+
+    def test_strips_whitespace(self):
+        dirty = "   \n\n  {\"key\": \"value\"}  \n "
+        assert gemini_service._clean_json_response(dirty) == "{\"key\": \"value\"}"
+
+
+
 class TestGenerateInterviewQuestions:
     def test_returns_list_of_question_dicts_on_success(self, monkeypatch):
         monkeypatch.setenv("GEMINI_API_KEY", "test-key")
