@@ -166,14 +166,14 @@ def generate_interview_questions(role: str, difficulty: str, count: int = 5) -> 
             prompt,
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,
-                max_output_tokens=1000,
+                max_output_tokens=2048,
                 response_mime_type="application/json"
             )
         )
-        
+
         cleaned_response = _clean_json_response(response.text)
         return json.loads(cleaned_response)
-        
+
     except Exception as e:
         logger.error(f"Error generating interview questions: {e}")
         return _get_fallback_questions(role, difficulty, count)
@@ -208,16 +208,21 @@ def evaluate_answer(question_text: str, answer_text: str, mode: str = "interview
             prompt,
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,
-                max_output_tokens=500,
+                max_output_tokens=2048,
                 response_mime_type="application/json"
             )
         )
-        
+
         cleaned_response = _clean_json_response(response.text)
         return json.loads(cleaned_response)
-        
+
     except Exception as e:
-        logger.error(f"Error evaluating answer: {e}")
+        finish_reason = None
+        try:
+            finish_reason = response.candidates[0].finish_reason
+        except Exception:
+            pass
+        logger.error(f"Error evaluating answer (finish_reason={finish_reason}): {e}")
         return fallback_response
 
 def generate_pitch_feedback(pitch_text: str, pitch_type: str = "elevator") -> Dict[str, Any]:
@@ -246,14 +251,14 @@ def generate_pitch_feedback(pitch_text: str, pitch_type: str = "elevator") -> Di
             prompt,
             generation_config=genai.types.GenerationConfig(
                 temperature=0.3,
-                max_output_tokens=500,
+                max_output_tokens=2048,
                 response_mime_type="application/json"
             )
         )
-        
+
         cleaned_response = _clean_json_response(response.text)
         return json.loads(cleaned_response)
-        
+
     except Exception as e:
         logger.error(f"Error generating pitch feedback: {e}")
         return fallback_response

@@ -172,7 +172,7 @@ class AnswerSubmitView(LoginRequiredMixin, View):
             is_transcribed=answer_type == 'voice'
         )
 
-        feedback = {
+        return JsonResponse({
             'overall_score': evaluation.score,
             'clarity_score': evaluation.clarity_score,
             'depth_score': evaluation.depth_score,
@@ -180,12 +180,9 @@ class AnswerSubmitView(LoginRequiredMixin, View):
             'text_feedback': evaluation.feedback,
             'strengths': json.loads(evaluation.strengths),
             'improvements': json.loads(evaluation.improvements),
-        }
-        return render(request, 'api/partials/feedback.html', {
-            'session': session,
-            'feedback': feedback,
             'is_last_question': is_last_question,
             'next_question': question.question_number + 1,
+            'session_id': str(session.id),
         })
 
 
