@@ -2,21 +2,32 @@ import os
 import json
 import logging
 import google.generativeai as genai
+import requests
 from google.api_core.exceptions import NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-# Configure Gemini API
-def _get_api_key():
-    api_key = os.getenv('GEMINI_API_KEY')
-    if not api_key:
-        logger.error("GEMINI_API_KEY environment variable not found.")
-    return api_key
+GROQ_CHAT_COMPLETIONS_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-api_key = _get_api_key()
-if api_key:
-    genai.configure(api_key=api_key)
+
+class _TextResponse:
+    """Minimal stand-in for a Gemini response, so callers can keep using `.text`."""
+
+    def __init__(self, text: str):
+        self.text = text
+
+# Configure Gemini API
+def _get_api_keys():
+    api_key_str = os.getenv('GEMINI_API_KEY')
+    if not api_key_str:
+        logger.error("GEMINI_API_KEY environment variable not found.")
+        return []
+    return [k.strip() for k in api_key_str.split(',') if k.strip()]
+
+api_keys = _get_api_keys()
+if api_keys:
+    genai.configure(api_key=api_keys[0])
 
 def _clean_json_response(text: str) -> str:
     """Helper to clean markdown code blocks from Gemini JSON response."""
@@ -29,27 +40,68 @@ def _clean_json_response(text: str) -> str:
         text = text[:-3]
     return text.strip()
 
+def _call_groq(prompt: str, temperature: float = 0.3, max_tokens: int = 1000):
+    """Fallback to Groq's free-tier API (OpenAI-compatible) when every Gemini model fails."""
+    groq_api_key = os.getenv('GROQ_API_KEY')
+    if not groq_api_key:
+        return None
+
+    model = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
+    try:
+        response = requests.post(
+            GROQ_CHAT_COMPLETIONS_URL,
+            headers={"Authorization": f"Bearer {groq_api_key}"},
+            json={
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+        content = response.json()["choices"][0]["message"]["content"]
+        return _TextResponse(content)
+    except Exception as e:
+        logger.error(f"Groq fallback request failed: {e}")
+        return None
+
+
 def _generate_content_with_fallback(prompt: str, generation_config=None):
-    """Helper to call Gemini API with fallback models."""
+    """Helper to call Gemini API with fallback models, then Groq if Gemini is entirely down."""
     primary_model = os.getenv('GEMINI_MODEL', 'gemini-3.7-flash')
     fallback_models_str = os.getenv('GEMINI_FALLBACK_MODELS', 'gemini-2.5-flash,gemini-3.5-flash')
     models_to_try = [primary_model] + [m.strip() for m in fallback_models_str.split(',') if m.strip()]
-    
+    keys = _get_api_keys()
+    if not keys:
+        models_to_try = []
+
     last_error = None
     for model_name in models_to_try:
-        try:
-            model = genai.GenerativeModel(model_name)
-            if generation_config:
-                return model.generate_content(prompt, generation_config=generation_config)
-            else:
-                return model.generate_content(prompt)
-        except (NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError) as e:
-            logger.warning(f"Model {model_name} failed or unavailable, trying next fallback. Error: {e}")
-            last_error = e
-        except Exception as e:
-            logger.error(f"Unexpected error with model {model_name}: {e}")
-            raise e
-            
+        for key in keys:
+            try:
+                genai.configure(api_key=key)
+                model = genai.GenerativeModel(model_name)
+                if generation_config:
+                    return model.generate_content(prompt, generation_config=generation_config)
+                else:
+                    return model.generate_content(prompt)
+            except (NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError) as e:
+                logger.warning(f"Model {model_name} with key {key[:8]}... failed or unavailable, trying next. Error: {e}")
+                last_error = e
+            except Exception as e:
+                logger.warning(f"Unexpected error with model {model_name} and key {key[:8]}..., trying next. Error: {e}")
+                last_error = e
+
+    groq_response = _call_groq(
+        prompt,
+        temperature=getattr(generation_config, 'temperature', 0.3),
+        max_tokens=getattr(generation_config, 'max_output_tokens', 1000),
+    )
+    if groq_response:
+        logger.info("All Gemini models failed; used Groq fallback instead.")
+        return groq_response
+
     if last_error:
         raise last_error
     raise RuntimeError("No models available to try")
@@ -145,8 +197,8 @@ def _get_fallback_questions(role: str, difficulty: str, count: int) -> List[Dict
 
 def generate_interview_questions(role: str, difficulty: str, count: int = 5) -> List[Dict[str, Any]]:
     """Generate realistic interview questions using Gemini."""
-    if not os.getenv('GEMINI_API_KEY'):
-        logger.error("API key missing. Falling back to default questions.")
+    if not os.getenv('GEMINI_API_KEY') and not os.getenv('GROQ_API_KEY'):
+        logger.error("No AI provider API key configured. Falling back to default questions.")
         return _get_fallback_questions(role, difficulty, count)
         
     try:
@@ -183,8 +235,8 @@ def evaluate_answer(question_text: str, answer_text: str, mode: str = "interview
         "improvements": []
     }
     
-    if not os.getenv('GEMINI_API_KEY'):
-        logger.error("API key missing. Returning fallback evaluation.")
+    if not os.getenv('GEMINI_API_KEY') and not os.getenv('GROQ_API_KEY'):
+        logger.error("No AI provider API key configured. Returning fallback evaluation.")
         return fallback_response
 
     try:
@@ -221,8 +273,8 @@ def generate_pitch_feedback(pitch_text: str, pitch_type: str = "elevator") -> Di
         "improvements": []
     }
     
-    if not os.getenv('GEMINI_API_KEY'):
-        logger.error("API key missing. Returning fallback pitch evaluation.")
+    if not os.getenv('GEMINI_API_KEY') and not os.getenv('GROQ_API_KEY'):
+        logger.error("No AI provider API key configured. Returning fallback pitch evaluation.")
         return fallback_response
 
     try:
