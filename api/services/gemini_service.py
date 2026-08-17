@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import google.generativeai as genai
-from google.api_core.exceptions import NotFound
+from google.api_core.exceptions import NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -43,8 +43,8 @@ def _generate_content_with_fallback(prompt: str, generation_config=None):
                 return model.generate_content(prompt, generation_config=generation_config)
             else:
                 return model.generate_content(prompt)
-        except NotFound as e:
-            logger.warning(f"Model {model_name} not found, trying next fallback. Error: {e}")
+        except (NotFound, ResourceExhausted, ServiceUnavailable, InternalServerError) as e:
+            logger.warning(f"Model {model_name} failed or unavailable, trying next fallback. Error: {e}")
             last_error = e
         except Exception as e:
             logger.error(f"Unexpected error with model {model_name}: {e}")
